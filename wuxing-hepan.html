@@ -39,9 +39,12 @@ header p { color: var(--muted); max-width: 36em }
 .panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 16px; min-width: 0 }
 .sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
 
-input[type="text"], input[type="date"], input[type="time"], textarea {
+input[type="text"], input[type="date"], select, textarea {
   font: inherit; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); width: 100% }
-input:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+input:focus-visible, button:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+select:disabled { opacity: .5 }
+.time24 { display: flex; align-items: center; gap: 6px }
+.time24 select { flex: 1; min-width: 0 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
 .form-row > div { display: grid; gap: 4px; min-width: 0 }
 .checks { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted) }
@@ -150,7 +153,8 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
     <div class="sec-h"><h2 id="b-h">一、你的底色</h2><span id="bSample" class="sample-tag">範例生辰</span></div>
     <div class="form-row">
       <div><label for="bd" class="label">出生日期（國曆）</label><input id="bd" type="date" min="1901-01-01" max="2099-12-31"></div>
-      <div><label for="bt" class="label">出生時間</label><input id="bt" type="time"></div>
+      <div><label for="btH" class="label">出生時間（24 小時制）</label>
+        <div class="time24"><select id="btH" aria-label="時"></select><span aria-hidden="true">:</span><select id="btM" aria-label="分"></select></div></div>
     </div>
     <div class="checks">
       <label><input id="noTime" type="checkbox"> 不知道出生時間</label>
@@ -369,8 +373,17 @@ let birthSample = true, chartData = null;
 let hexSample = true, vals = [];
 
 // ===== 生辰區 =====
+// 出生時間用兩個下拉選單（00–23 時、00–59 分），不受瀏覽器語系影響，固定 24 小時制
+const pad2 = n => String(n).padStart(2, "0");
+function fillTimeSelect(sel, n, unit) {
+  sel.innerHTML = `<option value="">--${unit}</option>` + Array.from({ length: n }, (_, i) => `<option value="${pad2(i)}">${pad2(i)}</option>`).join("");
+}
+fillTimeSelect($("btH"), 24, "時"); fillTimeSelect($("btM"), 60, "分");
+function getTime() { const h = $("btH").value, m = $("btM").value; return h && m ? `${h}:${m}` : ""; }
+function setTime(t) { const [h = "", m = ""] = (t || "").split(":"); $("btH").value = h; $("btM").value = m; }
+function setTimeDisabled(on) { $("btH").disabled = on; $("btM").disabled = on; }
 function readBirth() {
-  const d = $("bd").value, t = $("bt").value, noTime = $("noTime").checked;
+  const d = $("bd").value, t = getTime(), noTime = $("noTime").checked;
   if (!d) return { err: "請先填出生日期。" };
   const [y, m, dd] = d.split("-").map(Number);
   if (y < 1901 || y > 2099) return { err: "目前支援 1901 到 2099 年出生。" };
@@ -415,7 +428,7 @@ function renderChart() {
   renderMerge();
 }
 $("calcBtn").addEventListener("click", () => { birthSample = false; renderChart(); });
-$("noTime").addEventListener("change", () => { $("bt").disabled = $("noTime").checked; });
+$("noTime").addEventListener("change", () => { setTimeDisabled($("noTime").checked); });
 $("remember").addEventListener("change", () => {
   if (!$("remember").checked) store("wxhp-birth", undefined);
   else if (!birthSample) { const b = readBirth(); if (!b.err) store("wxhp-birth", b.raw); }
@@ -565,7 +578,7 @@ $("jList").addEventListener("click", ev => {
 const saved = load("wxhp-birth", null);
 const start = saved || SAMPLE_BIRTH;
 birthSample = !saved;
-$("bd").value = start.d; $("bt").value = start.t || ""; $("noTime").checked = !!start.noTime; $("bt").disabled = !!start.noTime;
+$("bd").value = start.d; setTime(start.t); $("noTime").checked = !!start.noTime; setTimeDisabled(!!start.noTime);
 $("remember").checked = !!saved;
 $("q").value = "";
 renderChart();
