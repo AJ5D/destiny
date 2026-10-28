@@ -4,117 +4,166 @@
 <title>星座命盤</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Symbols&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Symbols&display=swap">
 <style>
-/* 版面：上方輸入生辰與出生地，接著是太陽、月亮、上升三大星座，中間是圓形星盤，下方是行星、相位和宮位的說明 */
-/* 配色：淺灰綠底、墨色字、朱紅點睛，固定淺色，不隨系統切換深色。星座以四元素上色 */
+/* 版面：時尚雜誌式單欄。刊頭大標 → 出生資料 → 三大星座橫排三聯 → 單色細線星盤 → 星位／宮位／相位分頁的詳細參數 */
+/* 配色：石灰白底、墨黑字、香檳金點睛；相位用霧藍、玫瑰、鼠尾草等低彩度色，固定淺色 */
 :root {
-  --paper: #F1F3EF; --surface: #FFFFFF; --ink: #1B2220; --muted: #5B6661; --rule: #D4DAD5;
-  --accent: #2C6B5E; --accent-soft: #E1ECE8; --mark: #B0432D;
-  --fire: #B5432D; --earth: #3B7A4C; --air: #9A7426; --water: #2C5888;
-  --fire-soft: #F6E5E0; --earth-soft: #E3EFE5; --air-soft: #F3ECDC; --water-soft: #E1E9F3;
-  --harm: #2C5888; --tense: #B5432D; --conj: #3B7A4C;
+  --paper: #EEEDE9; --surface: #F8F7F4; --ink: #171717; --muted: #6E6B67; --rule: #D5D2CC; --hair: #E3E0DA;
+  --gold: #A3814F; --gold-soft: #EFE7DA;
+  --dusk: #5F7896; --rose: #B5615A; --sage: #6F8F6C; --taupe: #8B827A;
+  --fire: #B5615A; --earth: #6F8F6C; --air: #A3814F; --water: #5F7896;
+  --f-latin: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
   --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
-  --f-glyph: "Noto Sans Symbols", "Segoe UI Symbol", "Apple Symbols", "DejaVu Sans", sans-serif;
+  --f-glyph: "Noto Sans Symbols", "Apple Symbols", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
   color-scheme: light;
 }
 
 * { box-sizing: border-box }
 [hidden] { display: none !important }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px }
-.wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 24px }
-h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.3 }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.75;
+  padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); padding-block: 28px 72px }
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: clamp(40px, 7vw, 72px) }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance }
 p { margin: 0 }
-.label { font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 500; font-family: var(--f-body) }
-.sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
-.g { font-family: var(--f-glyph); font-style: normal }
-
-header { display: grid; gap: 8px }
-.home { justify-self: start; font-size: 14px; color: var(--accent); text-decoration: none }
-.home:hover { text-decoration: underline }
-header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
-header p { color: var(--muted); max-width: 36em }
-
-.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 16px; min-width: 0 }
-.panel > h2 { font-size: 22px }
-input[type="text"], input[type="date"], input[type="number"], select {
-  font: inherit; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); width: 100% }
-input:focus-visible, button:focus-visible, select:focus-visible, .prow:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
-.form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px }
-.form > div { display: grid; gap: 4px; min-width: 0; align-content: start }
-.form .full { grid-column: 1 / -1 }
-.manual { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
-.manual > div { display: grid; gap: 4px; min-width: 0 }
-.time24 { display: flex; align-items: center; gap: 6px }
-.time24 select { flex: 1; min-width: 0 }
-.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted) }
-.checks label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
-.btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center }
-button { font: inherit; font-weight: 500; border-radius: 4px; padding: 9px 20px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
-.err { color: var(--mark); font-size: 14px }
+.eyebrow { font-family: var(--f-latin); font-size: 11px; letter-spacing: .32em; text-transform: uppercase; color: var(--muted) }
+.label { font-size: 12px; letter-spacing: .14em; color: var(--muted) }
+.g { font-family: var(--f-glyph); font-style: normal; font-weight: 400 }
+.num { font-family: var(--f-latin); font-variant-numeric: lining-nums tabular-nums }
 .hint { font-size: 13px; color: var(--muted) }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; border-bottom: 1px solid var(--ink); padding-bottom: 10px }
+.sec-h h2 { font-family: var(--f-display); font-weight: 600; font-size: clamp(22px, 4vw, 28px); letter-spacing: .08em }
+
+/* 刊頭 */
+header { display: grid; gap: 14px; padding-top: 4px }
+.home { justify-self: start; font-size: 13px; color: var(--muted); text-decoration: none; letter-spacing: .08em }
+.home:hover { color: var(--ink) }
+.mast { display: grid; gap: 4px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding-block: 18px 22px }
+.mast .latin { font-family: var(--f-latin); font-style: italic; font-size: clamp(44px, 12vw, 104px); line-height: .95; letter-spacing: -.01em }
+.mast h1 { font-family: var(--f-display); font-weight: 900; font-size: clamp(30px, 7vw, 54px); letter-spacing: .3em; line-height: 1.2 }
+.mast .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px 24px }
+header .lede { color: var(--muted); max-width: 34em }
+
+/* 出生資料 */
+.form-card { display: grid; gap: 18px }
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px }
+.form > div { display: grid; gap: 6px; min-width: 0; align-content: start }
+.form .full { grid-column: 1 / -1 }
+.manual { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px }
+.manual > div { display: grid; gap: 6px; min-width: 0 }
+input[type="text"], input[type="date"], input[type="number"], select {
+  font: inherit; padding: 8px 2px; border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; background: transparent; color: var(--ink); width: 100% }
+input:focus, select:focus { outline: none; border-bottom-color: var(--ink) }
+input:focus-visible, select:focus-visible, button:focus-visible, [role="tab"]:focus-visible, .prow:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px }
+.time24 { display: flex; align-items: center; gap: 8px }
+.time24 select { flex: 1; min-width: 0 }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 13px; color: var(--muted) }
+.checks label { display: inline-flex; gap: 8px; align-items: center; cursor: pointer }
+.checks input { accent-color: var(--ink) }
+.btns { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center }
+.btn { font: inherit; font-size: 14px; letter-spacing: .24em; padding: 12px 28px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--surface); border-radius: 0 }
+.btn:hover { background: transparent; color: var(--ink) }
+.err { color: var(--rose); font-size: 13px }
 
 /* 三大星座 */
-.big3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
-.b3 { border-radius: 6px; padding: 16px; display: grid; gap: 4px; align-content: start; background: var(--el-soft); min-width: 0 }
-.b3 .sg { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap }
-.b3 .sg b { font-family: var(--f-display); font-weight: 900; font-size: clamp(24px, 5vw, 32px); color: var(--el); line-height: 1.2 }
-.b3 .sg .g { font-size: 22px; color: var(--el) }
-.b3 .deg { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums }
-.b3 p { font-size: 14px }
-.b3.none { background: var(--paper); border: 1px dashed var(--rule) }
-.b3.none b { color: var(--muted) }
+.who { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; font-size: 13px; color: var(--muted) }
+.who b { font-family: var(--f-display); font-weight: 600; font-size: 17px; color: var(--ink); letter-spacing: .06em }
+.tag { font-size: 11px; letter-spacing: .14em; padding: 2px 8px; border: 1px solid var(--gold); color: var(--gold) }
+.big3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) }
+.b3 { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 22px 14px 18px; min-width: 0 }
+.b3 + .b3 { border-left: 1px solid var(--rule) }
+.b3 .eyebrow { letter-spacing: .26em }
+.b3 .sg { font-family: var(--f-glyph); font-size: clamp(40px, 9vw, 64px); line-height: 1.1; color: var(--el) }
+.b3 b { font-family: var(--f-display); font-weight: 900; font-size: clamp(22px, 4.6vw, 32px); letter-spacing: .12em; line-height: 1.3 }
+.b3 .deg { font-family: var(--f-latin); font-style: italic; font-size: 16px; color: var(--muted) }
+.b3 p { font-size: 13px; color: var(--muted); max-width: 16em }
+.b3.none b { color: var(--muted); font-weight: 600; font-size: 18px; letter-spacing: .06em }
 
 /* 星盤 */
-.wheel-wrap { display: grid; justify-items: center; gap: 8px }
-#wheel { width: 100%; max-width: 620px; height: auto; display: block }
+.wheel-box { display: grid; justify-items: center; gap: 14px }
+#wheel { width: 100%; max-width: 640px; height: auto; display: block; overflow: visible }
 #wheel text { font-family: var(--f-body) }
 #wheel .gl { font-family: var(--f-glyph) }
+#wheel .lt { font-family: var(--f-latin) }
 #wheel .pg { cursor: pointer }
-#wheel .asp { transition: opacity .2s }
-#wheel.focus .asp { opacity: .08 }
+#wheel .asp { transition: opacity .25s }
+#wheel.focus .asp { opacity: .07 }
 #wheel.focus .asp.on { opacity: 1 }
-.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; font-size: 13px; color: var(--muted) }
-.legend span { display: inline-flex; align-items: center; gap: 6px }
-.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--c) }
-.legend i.dash { border-top-style: dashed }
+#wheel.focus .pg { opacity: .35 }
+#wheel.focus .pg.on { opacity: 1 }
 
-/* 行星列表 */
-.plist { display: grid; margin: 0; padding: 0; list-style: none }
-.prow { display: grid; grid-template-columns: 4.6em minmax(0, 1fr); gap: 2px 14px; padding: 14px 8px; border-top: 1px solid var(--rule); cursor: pointer; border-radius: 4px }
-.prow:first-child { border-top: 0 }
-.prow.on { background: var(--accent-soft) }
-.prow .pn { grid-row: 1 / span 2; font-family: var(--f-display); font-weight: 900; font-size: 18px; line-height: 1.3 }
-.prow .pn small { display: block; font-family: var(--f-body); font-weight: 400; font-size: 12px; color: var(--muted) }
-.prow .ps { font-weight: 500 }
-.prow .ps b { color: var(--el); font-family: var(--f-display); font-weight: 900; font-size: 17px }
-.prow .ps .deg { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 6px }
-.prow .ps .rx { font-size: 12px; color: var(--mark); margin-left: 6px }
-.prow p { font-size: 14px; color: var(--muted) }
+/* 分頁 */
+.tabs { display: flex; gap: 0; border: 1px solid var(--ink) }
+.tabs button { flex: 1; font: inherit; font-size: 14px; letter-spacing: .3em; padding: 11px 6px; border: 0; background: transparent; color: var(--ink); cursor: pointer; border-radius: 0 }
+.tabs button + button { border-left: 1px solid var(--ink) }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--surface) }
+.pane { display: grid; gap: 16px }
 
-.alist { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 20px; margin: 0; padding: 0; list-style: none; font-size: 14px }
-.alist li { display: flex; gap: 8px; align-items: baseline; min-width: 0 }
-.alist .at { font-weight: 500; color: var(--c) }
-.alist .orb { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; margin-left: auto }
+/* 星位 */
+.plist { margin: 0; padding: 0; list-style: none }
+.prow { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) auto; gap: 0 14px; align-items: baseline; padding: 14px 6px; border-bottom: 1px solid var(--hair); cursor: pointer }
+.prow.on { background: var(--gold-soft) }
+.prow .pg-g { font-family: var(--f-glyph); font-size: 22px; text-align: center; color: var(--ink); grid-row: 1 / span 2 }
+.prow .pn { font-family: var(--f-display); font-weight: 600; font-size: 16px; letter-spacing: .08em }
+.prow .pn .sgn { color: var(--el); margin-left: 10px }
+.prow .pd { font-family: var(--f-latin); font-size: 15px; text-align: right; white-space: nowrap }
+.prow .pd small { font-family: var(--f-body); font-size: 12px; color: var(--muted); margin-left: 8px }
+.prow .pd .rx { color: var(--rose); font-family: var(--f-body); font-size: 12px; margin-left: 6px }
+.prow p { grid-column: 2 / -1; font-size: 13px; color: var(--muted); margin-top: 2px }
 
-.hgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px 20px; margin: 0; padding: 0; list-style: none }
-.hgrid li { display: grid; grid-template-columns: 2.4em 1fr; gap: 0 10px; min-width: 0; font-size: 14px }
-.hgrid .hn { font-family: var(--f-display); font-weight: 900; font-size: 18px; grid-row: 1 / span 2; color: var(--accent) }
-.hgrid .hc b { color: var(--el); font-weight: 500 }
-.hgrid .hc .deg { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; margin-left: 4px }
-.hgrid p { color: var(--muted); font-size: 13px }
+/* 表格 */
+.tbl-wrap { overflow-x: auto }
+table { border-collapse: collapse; width: 100%; font-size: 14px }
+th { font-weight: 400; font-size: 12px; letter-spacing: .14em; color: var(--muted); text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--ink); white-space: nowrap }
+td { padding: 12px 10px; border-bottom: 1px solid var(--hair); vertical-align: baseline }
+.htbl .hn { font-family: var(--f-latin); font-size: 18px; width: 2em }
+.htbl .hname { font-family: var(--f-display); font-weight: 600; white-space: nowrap }
+.htbl .hname small { display: block; font-family: var(--f-body); font-weight: 400; font-size: 12px; color: var(--muted); white-space: normal }
+.htbl .sgn { color: var(--el); white-space: nowrap }
+.htbl .fly { white-space: nowrap }
+.htbl .fly .g { margin-right: 4px }
+.htbl .in { font-size: 13px; color: var(--muted) }
 
-footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
+/* 相位格 */
+.grid-wrap { overflow-x: auto; display: grid; justify-items: center }
+.agrid { border-collapse: collapse; width: auto; font-size: 13px }
+.agrid th, .agrid td { width: 32px; height: 32px; min-width: 28px; padding: 0; text-align: center; vertical-align: middle; border: 1px solid var(--hair); font-family: var(--f-display); font-weight: 600; font-size: 14px; letter-spacing: 0; color: var(--ink) }
+.agrid th { background: var(--surface); border-bottom: 1px solid var(--hair) }
+.agrid td.diag { background: var(--surface); color: var(--muted); font-weight: 400; font-size: 12px }
+.agrid td.off { border-color: transparent }
+.agrid td .g { font-size: 16px; color: var(--c) }
+.legend-tbl td { padding: 10px }
+.legend-tbl .ln { width: 56px }
+.legend-tbl .ln i { display: block; height: 0; border-top: 2px solid var(--c) }
+.legend-tbl .ln i.dash { border-top-style: dashed }
+.legend-tbl .sym { font-size: 18px; color: var(--c); text-align: center; width: 3em }
+.legend-tbl .ang { font-family: var(--f-latin); color: var(--muted); width: 4em }
+.alist { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 28px }
+.alist li { display: flex; gap: 10px; align-items: baseline; padding: 9px 2px; border-bottom: 1px solid var(--hair); font-size: 14px; min-width: 0 }
+.alist .at { color: var(--c) }
+.alist .orb { margin-left: auto; font-family: var(--f-latin); font-size: 13px; color: var(--muted) }
 
-@media (max-width: 560px) {
-  .form, .big3 { grid-template-columns: 1fr }
+footer { font-size: 12px; color: var(--muted); display: grid; gap: 6px; border-top: 1px solid var(--rule); padding-top: 18px }
+
+@media (max-width: 600px) {
+  .form { grid-template-columns: 1fr }
   .manual { grid-template-columns: 1fr 1fr }
-  .b3 { grid-template-columns: auto 1fr; column-gap: 12px; padding: 12px 14px }
-  .b3 .label { grid-column: 1 / -1 }
-  .b3 p { grid-column: 1 / -1 }
-  #wheel .sn { display: none }
+  .big3 { grid-template-columns: 1fr }
+  .b3 { grid-template-columns: auto 1fr auto; justify-items: start; text-align: left; align-items: center; column-gap: 16px; padding: 16px 4px }
+  .b3 + .b3 { border-left: 0; border-top: 1px solid var(--rule) }
+  .b3 .eyebrow { grid-column: 1 / -1 }
+  .b3 .sg { grid-row: 2 / span 2; font-size: 44px }
+  .b3 .deg { justify-self: end }
+  .b3 p { grid-column: 2 / -1; max-width: none }
+  .tabs button { letter-spacing: .16em }
+  #wheel .sn, #wheel .pdeg { display: none }
+  .agrid th, .agrid td { width: 26px; height: 28px; min-width: 24px; font-size: 12px }
+  .agrid td .g { font-size: 14px }
+  .hide-s { display: none }
+  .htbl td, .htbl th { padding-inline: 6px }
+  .htbl .hname small { display: none }
+  .htbl .hn { width: 1.4em }
 }
 @media (prefers-reduced-motion: reduce) { #wheel .asp { transition: none } }
 </style>
@@ -122,13 +171,16 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
 <div class="wrap">
   <header>
     <a class="home" href="./">← 掌上命珠</a>
-    <span class="label">西洋占星 × 十二星座 × 十二宮</span>
-    <h1>星座命盤</h1>
-    <p>輸入出生的日期、時間和地點，排出你出生那一刻的天空。<br>除了太陽星座，也看看月亮、上升和其他行星落在哪裡。</p>
+    <div class="mast">
+      <div class="row"><span class="eyebrow">The Natal Chart</span><span class="eyebrow">Tropical · Placidus</span></div>
+      <span class="latin" aria-hidden="true">Natal Chart</span>
+      <h1>星座命盤</h1>
+    </div>
+    <p class="lede">輸入出生的日期、時間和地點，排出你出生那一刻的天空。除了太陽星座，也看看月亮、上升和其他行星落在哪裡。</p>
   </header>
 
-  <section class="panel" aria-labelledby="in-h">
-    <h2 id="in-h" class="label">出生資料</h2>
+  <section class="form-card" aria-labelledby="in-h">
+    <div class="sec-h"><h2 id="in-h">出生資料</h2><span class="eyebrow">Birth Data</span></div>
     <div class="form">
       <div><label for="nm" class="label">姓名（可留空）</label><input id="nm" type="text" maxlength="12" placeholder="例如：小明"></div>
       <div><label for="bd" class="label">出生日期（國曆）</label><input id="bd" type="date" min="1901-01-01" max="2099-12-31"></div>
@@ -145,49 +197,48 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
       <label><input id="noTime" type="checkbox"> 不知道出生時間</label>
       <label><input id="remember" type="checkbox"> 記住在這台裝置</label>
     </div>
-    <div class="btns"><button id="calcBtn">排出星盤</button><span class="err" id="err" aria-live="polite"></span></div>
+    <div class="btns"><button class="btn" id="calcBtn">排出星盤</button><span class="err" id="err" aria-live="polite"></span></div>
   </section>
 
-  <section aria-labelledby="b3-h" style="display:grid;gap:12px">
-    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between">
-      <h2 id="b3-h" style="font-size:22px">三大星座</h2><span class="sample-tag" id="sampleTag">範例生辰</span>
-    </div>
+  <section aria-labelledby="b3-h" style="display:grid;gap:16px">
+    <div class="sec-h"><h2 id="b3-h">三大星座</h2><span class="eyebrow">Sun · Moon · Rising</span></div>
+    <div class="who" id="who"></div>
     <div class="big3" id="big3"></div>
     <p class="hint" id="moonHint" hidden></p>
   </section>
 
-  <section class="panel" aria-labelledby="w-h">
-    <h2 id="w-h">星盤</h2>
-    <div class="wheel-wrap">
-      <svg id="wheel" viewBox="0 0 600 600" role="img" aria-label="本命星盤"></svg>
-      <div class="legend" aria-hidden="true">
-        <span><i style="--c:var(--conj)"></i>合相</span>
-        <span><i style="--c:var(--harm)"></i>三分、六分（順）</span>
-        <span><i style="--c:var(--tense)"></i>四分、對分（卡）</span>
-      </div>
-      <p class="hint">點行星（盤上或下方列表）只看它的相位，再點一次回到全部。</p>
+  <section aria-labelledby="w-h" style="display:grid;gap:16px">
+    <div class="sec-h"><h2 id="w-h">星盤</h2><span class="eyebrow">The Wheel</span></div>
+    <div class="wheel-box">
+      <svg id="wheel" viewBox="-26 -26 652 652" role="img" aria-label="本命星盤"></svg>
+      <p class="hint">點盤上的行星，只看它的相位；再點一次回到全部。</p>
     </div>
   </section>
 
-  <section class="panel" aria-labelledby="p-h">
-    <h2 id="p-h">行星落在哪裡</h2>
-    <ul class="plist" id="plist"></ul>
-  </section>
-
-  <section class="panel" aria-labelledby="a-h">
-    <h2 id="a-h">主要相位</h2>
-    <p class="hint">相位是行星之間的角度。角度順的，兩股力量互相幫忙；角度卡的，會互相拉扯，也是成長的地方。</p>
-    <ul class="alist" id="alist"></ul>
-  </section>
-
-  <section class="panel" aria-labelledby="h-h" id="housePanel">
-    <h2 id="h-h">十二宮</h2>
-    <p class="hint" id="houseSys"></p>
-    <ul class="hgrid" id="hgrid"></ul>
+  <section aria-labelledby="d-h" style="display:grid;gap:18px">
+    <div class="sec-h"><h2 id="d-h">詳細參數</h2><span class="eyebrow">Details</span></div>
+    <div class="tabs" role="tablist" aria-label="詳細參數">
+      <button role="tab" id="tab-p" aria-controls="pane-p" aria-selected="true">星位</button>
+      <button role="tab" id="tab-h" aria-controls="pane-h" aria-selected="false">宮位</button>
+      <button role="tab" id="tab-a" aria-controls="pane-a" aria-selected="false">相位</button>
+    </div>
+    <div class="pane" id="pane-p" role="tabpanel" aria-labelledby="tab-p">
+      <ul class="plist" id="plist"></ul>
+    </div>
+    <div class="pane" id="pane-h" role="tabpanel" aria-labelledby="tab-h" hidden>
+      <p class="hint" id="houseSys"></p>
+      <div class="tbl-wrap"><table class="htbl" id="htbl"></table></div>
+    </div>
+    <div class="pane" id="pane-a" role="tabpanel" aria-labelledby="tab-a" hidden>
+      <p class="hint">相位是行星之間的角度。角度順的，兩股力量互相幫忙；角度卡的，會互相拉扯，也是成長的地方。</p>
+      <div class="grid-wrap"><table class="agrid" id="agrid" aria-label="相位表"></table></div>
+      <div class="tbl-wrap"><table class="legend-tbl" id="legend"></table></div>
+      <ul class="alist" id="alist"></ul>
+    </div>
   </section>
 
   <footer>
-    <p>行星位置用開源的 astronomy-engine 天文函式庫（MIT 授權）計算，採回歸黃道，北交點用平均交點。分宮制用普拉西度制（Placidus），出生地超過南北緯 66 度時改用等宮制。</p>
+    <p>行星位置用開源的 astronomy-engine 天文函式庫（MIT 授權）計算，採回歸黃道，北交點用平均交點。分宮制用普拉西度制（Placidus），出生地超過南北緯 66 度時改用等宮制。宮位守護星採現代守護（天蠍冥王星、水瓶天王星、雙魚海王星）。</p>
     <p>時區依出生地自動換算，包含台灣早年的夏令時間。自訂經緯度時用你填的時區，不另外處理夏令時間。</p>
     <p>這是一個認識自己的反思工具，不做預測，也不取代專業意見。</p>
   </footer>
@@ -218,16 +269,27 @@ const PLANETS = [
   ["Neptune", "海王星", "海", "♆", "你的夢想、靈感，也是容易迷惘的地方。屬於世代的特質"],
   ["Pluto", "冥王星", "冥", "♇", "深層的轉變和力量。屬於世代的特質"], ["Node", "北交點", "北交", "☊", "這一生想往哪裡成長"]
 ];
+const ANGLE_PTS = { Asc: ["上升點", "升", "AC", "你面對世界的方式，別人對你的第一印象"], Mc: ["天頂", "頂", "MC", "你想在社會上成為什麼樣的人，事業的方向"] };
 const HOUSES = [
-  "自我、外表、給人的第一印象", "金錢、物質，以及你覺得自己值多少", "溝通、學習、兄弟姊妹和短途移動", "家庭、根源，內心的安全基地",
-  "戀愛、創作、玩樂和子女", "日常工作、健康和生活習慣", "伴侶、婚姻和合作對象", "共同的資源、親密關係和深層轉變",
-  "遠行、信仰、高等教育和人生觀", "事業、社會地位和成就", "朋友、團體和理想", "潛意識、獨處，以及看不見的事"
+  ["自我宮", "自我、外表、給人的第一印象"], ["財帛宮", "金錢、物質，以及你覺得自己值多少"], ["溝通宮", "溝通、學習、兄弟姊妹和短途移動"],
+  ["家庭宮", "家庭、根源，內心的安全基地"], ["戀愛宮", "戀愛、創作、玩樂和子女"], ["工作健康宮", "日常工作、健康和生活習慣"],
+  ["伴侶宮", "伴侶、婚姻和合作對象"], ["共享資源宮", "共同的資源、親密關係和深層轉變"], ["遠行宮", "遠行、信仰、高等教育和人生觀"],
+  ["事業宮", "事業、社會地位和成就"], ["朋友宮", "朋友、團體和理想"], ["潛意識宮", "潛意識、獨處，以及看不見的事"]
 ];
+// 現代守護星，依星座順序
+const RULERS = ["Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury", "Venus", "Pluto", "Jupiter", "Saturn", "Uranus", "Neptune"];
 const ASPECTS = [
-  { a: 0, n: "合相", g: "☌", orb: 8, c: "conj", d: "兩股力量綁在一起" }, { a: 60, n: "六分相", g: "⚹", orb: 5, c: "harm", d: "互相幫忙的機會" },
-  { a: 90, n: "四分相", g: "□", orb: 7, c: "tense", d: "互相拉扯，需要調整" }, { a: 120, n: "三分相", g: "△", orb: 7, c: "harm", d: "自然順暢" },
-  { a: 180, n: "對分相", g: "☍", orb: 8, c: "tense", d: "兩頭拉扯，需要平衡" }
+  { a: 0, n: "合相", g: "☌", orb: 8, c: "gold", d: "兩股力量綁在一起" },
+  { a: 180, n: "對分相", g: "☍", orb: 8, c: "rose", d: "兩頭拉扯，需要平衡" },
+  { a: 120, n: "三分相", g: "△", orb: 7, c: "dusk", d: "自然順暢" },
+  { a: 90, n: "四分相", g: "□", orb: 7, c: "rose", d: "互相拉扯，需要調整", dash: true },
+  { a: 60, n: "六分相", g: "⚹", orb: 5, c: "dusk", d: "互相幫忙的機會", dash: true },
+  { a: 135, n: "八分之三相", g: "⚼", orb: 2, c: "sage", d: "小摩擦，容易累積壓力", dash: true },
+  { a: 150, n: "十二分之五相", g: "⚻", orb: 2, c: "taupe", d: "彆扭、需要調整角度", dash: true }
 ];
+const GRID_KEYS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Asc", "Mc"];
+
+// ===== 地點 =====
 const CITIES = [
   ["台灣", [["台北", 25.033, 121.565], ["新北", 25.012, 121.465], ["基隆", 25.128, 121.741], ["桃園", 24.993, 121.301], ["新竹", 24.804, 120.971],
     ["苗栗", 24.560, 120.821], ["台中", 24.148, 120.674], ["彰化", 24.081, 120.538], ["南投", 23.910, 120.684], ["雲林", 23.711, 120.541],
@@ -352,133 +414,180 @@ function chart(b) {
 
 // ===== 顯示 =====
 const signOf = lon => SIGNS[Math.floor(norm(lon) / 30)];
-const elVars = s => `--el:var(--${s[2]});--el-soft:var(--${s[2]}-soft)`;
+const signIdx = lon => Math.floor(norm(lon) / 30);
+const elVar = s => `--el:var(--${s[2]})`;
+const pName = k => (PLANETS.find(x => x[0] === k) || [])[1] || ANGLE_PTS[k][0];
+const pGlyph = k => (PLANETS.find(x => x[0] === k) || [])[3];
 function degText(lon) {
   const x = norm(lon) % 30, d = Math.floor(x), m = Math.floor((x - d) * 60);
   return `${d}°${pad2(m)}′`;
 }
+function renderWho(c) {
+  const b = c.b;
+  const place = b.zone ? $("city").value : `${b.lat}, ${b.lon}`;
+  $("who").innerHTML = `${b.name ? `<b>${esc(b.name)}</b>` : ""}<span class="num">${b.y}.${pad2(b.mo)}.${pad2(b.d)}${b.noTime ? "" : ` ${pad2(b.hh)}:${pad2(b.mm)}`}</span><span>${esc(place)}</span>${isSample ? '<span class="tag">範例生辰</span>' : ""}`;
+}
 function renderBig3(c) {
-  const sun = c.pts[0], moon = c.pts[1];
-  const card = (title, lon, desc) => {
+  const card = (en, title, lon, desc) => {
     const s = signOf(lon);
-    return `<div class="b3" style="${elVars(s)}"><span class="label">${title}</span>
-      <div class="sg"><b>${s[0]}</b><span class="g">${s[1]}${VS}</span><span class="deg">${degText(lon)}</span></div>
+    return `<div class="b3" style="${elVar(s)}"><span class="eyebrow">${en} · ${title}</span>
+      <span class="sg">${s[1]}${VS}</span><b>${s[0]}</b><span class="deg">${degText(lon)}</span>
       <p>${desc}：${s[3]}。</p></div>`;
   };
-  let html = card("太陽星座", sun.lon, "你是誰") + card("月亮星座", moon.lon, "你需要什麼");
-  html += c.ang ? card("上升星座", c.ang.asc, "別人第一眼看到的你")
-    : `<div class="b3 none"><span class="label">上升星座</span><div class="sg"><b>需要出生時間</b></div><p>上升大約每兩小時換一個星座，要有出生時間才算得出來。</p></div>`;
+  let html = card("Sun", "太陽", c.pts[0].lon, "你是誰") + card("Moon", "月亮", c.pts[1].lon, "你需要什麼");
+  html += c.ang ? card("Rising", "上升", c.ang.asc, "別人第一眼看到的你")
+    : `<div class="b3 none"><span class="eyebrow">Rising · 上升</span><span class="sg" style="color:var(--rule)">?</span><b>需要出生時間</b><p>上升大約每兩小時換一個星座，要有出生時間才算得出來。</p></div>`;
   $("big3").innerHTML = html;
   $("moonHint").hidden = !c.moonRange;
   if (c.moonRange) $("moonHint").textContent = `月亮一天大約走 13 度。你出生那天月亮從${SIGNS[c.moonRange[0]][0]}座走到${SIGNS[c.moonRange[1]][0]}座，不知道出生時間時，月亮星座可能是其中一個。`;
 }
 
-// 星盤 SVG：上升點在左邊（九點鐘方向），黃道逆時針排列
-const CX = 300, CY = 300, R_OUT = 292, R_SIGN = 250, R_PL = 214, R_HN = 160, R_IN = 146;
+// 星盤 SVG：上升點在左邊（九點鐘方向），黃道逆時針排列；單色細線，金色標出上升與天頂
+const CX = 300, CY = 300, R_OUT = 294, R_SIGN = 248, R_PL = 214, R_HN = 150, R_IN = 136;
 function renderWheel(c) {
   const ref = c.ang ? c.ang.asc : 0;
   const ang = lon => (180 + norm(lon - ref)) * D2R;
   const P = (lon, r) => [CX + r * Math.cos(ang(lon)), CY - r * Math.sin(ang(lon))];
   const f = n => n.toFixed(1);
   const line = (l1, r1, l2, r2, attr) => { const [x1, y1] = P(l1, r1), [x2, y2] = P(l2, r2); return `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" ${attr}/>`; };
-  let s = "";
+  const txt = (lon, r, size, body, attr = "") => { const [x, y] = P(lon, r); return `<text x="${f(x)}" y="${f(y)}" font-size="${size}" text-anchor="middle" dominant-baseline="central" ${attr}>${body}</text>`; };
+  let s = `<circle cx="${CX}" cy="${CY}" r="${R_OUT}" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.2"/>`;
+  s += `<circle cx="${CX}" cy="${CY}" r="${R_OUT - 5}" fill="none" stroke="var(--ink)" stroke-width=".5"/>`;
   // 星座環
   for (let i = 0; i < 12; i++) {
-    const S = SIGNS[i], a0 = i * 30, a1 = a0 + 30;
-    const [x0, y0] = P(a0, R_OUT), [x1, y1] = P(a1, R_OUT), [x2, y2] = P(a1, R_SIGN), [x3, y3] = P(a0, R_SIGN);
-    s += `<path d="M${f(x0)} ${f(y0)} A${R_OUT} ${R_OUT} 0 0 0 ${f(x1)} ${f(y1)} L${f(x2)} ${f(y2)} A${R_SIGN} ${R_SIGN} 0 0 1 ${f(x3)} ${f(y3)} Z" fill="var(--${S[2]}-soft)" stroke="var(--rule)" stroke-width="1"/>`;
-    const [gx, gy] = P(a0 + 15, 280), [nx, ny] = P(a0 + 15, 259);
-    s += `<text class="gl" x="${f(gx)}" y="${f(gy)}" font-size="21" fill="var(--${S[2]})" text-anchor="middle" dominant-baseline="central">${S[1]}${VS}</text>`;
-    s += `<text class="sn" x="${f(nx)}" y="${f(ny)}" font-size="10" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">${S[0]}</text>`;
+    const S = SIGNS[i], a0 = i * 30;
+    s += line(a0, R_SIGN, a0, R_OUT - 5, `stroke="var(--ink)" stroke-width=".6"`);
+    s += txt(a0 + 15, 274, 21, S[1] + VS, `class="gl" fill="var(--${S[2]})"`);
+    s += txt(a0 + 15, 256, 9.5, S[0], `class="sn" fill="var(--muted)" letter-spacing="1"`);
   }
-  for (let d = 0; d < 360; d += 5) s += line(d, R_SIGN, d, R_SIGN - (d % 10 === 0 ? 6 : 3), `stroke="var(--muted)" stroke-width="${d % 30 === 0 ? 1 : .6}"`);
-  s += `<circle cx="${CX}" cy="${CY}" r="${R_SIGN}" fill="var(--surface)" stroke="var(--ink)" stroke-width="1"/>`;
-  s += `<circle cx="${CX}" cy="${CY}" r="${R_OUT}" fill="none" stroke="var(--ink)" stroke-width="1"/>`;
+  for (let d = 0; d < 360; d++) {
+    const len = d % 10 === 0 ? 7 : d % 5 === 0 ? 4.5 : 2.5;
+    s += line(d, R_SIGN, d, R_SIGN - len, `stroke="var(--ink)" stroke-width="${d % 10 === 0 ? .7 : .4}"`);
+  }
+  s += `<circle cx="${CX}" cy="${CY}" r="${R_SIGN}" fill="none" stroke="var(--ink)" stroke-width=".8"/>`;
   // 宮位
   if (c.ang) {
     const cu = c.ang.houses.cusps;
     cu.forEach((L, i) => {
       const axis = i % 3 === 0;
-      s += line(L, R_IN, L, R_SIGN, `stroke="var(--${axis ? "ink" : "rule"})" stroke-width="${axis ? 1.6 : 1}"`);
+      s += line(L, R_IN, L, R_SIGN - 8, `stroke="var(--${axis ? "ink" : "rule"})" stroke-width="${axis ? 1 : .7}"`);
       const mid = L + norm(cu[(i + 1) % 12] - L) / 2;
-      const [hx, hy] = P(mid, R_HN);
-      s += `<text x="${f(hx)}" y="${f(hy)}" font-size="13" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">${i + 1}</text>`;
+      s += txt(mid, R_HN, 13, i + 1, `class="lt" font-style="italic" fill="var(--muted)"`);
     });
-    [["ASC", c.ang.asc], ["MC", c.ang.mc]].forEach(([n, L]) => {
-      const [x, y] = P(L, R_OUT + 1);
-      const [tx, ty] = P(L, R_SIGN + 21);
-      s += line(L, R_SIGN, L, R_OUT, `stroke="var(--mark)" stroke-width="2"`);
-      s += `<text x="${f(tx)}" y="${f(ty)}" font-size="12" font-weight="700" fill="var(--mark)" text-anchor="middle" dominant-baseline="central" paint-order="stroke" stroke="var(--surface)" stroke-width="3">${n}</text>`;
+    [["AC", c.ang.asc], ["MC", c.ang.mc], ["DC", c.ang.asc + 180], ["IC", c.ang.mc + 180]].forEach(([n, L], i) => {
+      if (i < 2) s += line(L, R_SIGN, L, R_OUT + 8, `stroke="var(--gold)" stroke-width="1.6"`);
+      s += txt(L, R_OUT + 17, 12, n, `class="lt" font-style="italic" fill="var(--${i < 2 ? "gold" : "muted"})"`);
     });
   }
-  s += `<circle cx="${CX}" cy="${CY}" r="${R_IN}" fill="var(--paper)" stroke="var(--rule)" stroke-width="1"/>`;
+  s += `<circle cx="${CX}" cy="${CY}" r="${R_IN}" fill="var(--paper)" stroke="var(--ink)" stroke-width=".6"/>`;
   // 相位線
   c.asp.forEach(x => {
-    const dash = x.A.c === "conj" ? "" : x.A.a === 60 || x.A.a === 90 ? ' stroke-dasharray="4 3"' : "";
-    s += `<g class="asp" data-a="${x.p.k}" data-b="${x.q.k}">${line(x.p.lon, R_IN - 4, x.q.lon, R_IN - 4, `stroke="var(--${x.A.c})" stroke-width="${x.orb < 2 ? 1.6 : 1}"${dash}`)}</g>`;
+    s += `<g class="asp" data-a="${x.p.k}" data-b="${x.q.k}">${line(x.p.lon, R_IN, x.q.lon, R_IN, `stroke="var(--${x.A.c})" stroke-width="${x.orb < 2 ? 1.4 : .9}"${x.A.dash ? ' stroke-dasharray="3 3"' : ""}`)}</g>`;
   });
-  // 行星：太擠時往兩邊推開，再用短線指回真正位置
+  // 行星：太擠時往兩邊推開，再用細線指回真正位置
   const pl = c.pts.map(p => ({ p, d: norm(p.lon - ref) })).sort((a, b) => a.d - b.d);
-  const MIN = 9.5;
-  for (let it = 0; it < 60; it++) {
+  const MIN = 9;
+  for (let it = 0; it < 80; it++) {
     let moved = false;
     for (let i = 0; i < pl.length; i++) {
       const a = pl[i], b = pl[(i + 1) % pl.length];
-      let gap = norm(b.d - a.d); if (pl.length === 1) break;
+      const gap = norm(b.d - a.d);
       if (gap < MIN) { const push = (MIN - gap) / 2 + .01; a.d = norm(a.d - push); b.d = norm(b.d + push); moved = true; }
     }
     if (!moved) break;
   }
   pl.forEach(({ p, d }) => {
-    const L = d + ref, [x, y] = P(L, R_PL);
-    const txt = p.k === "Node" ? "☊" : p.short;
-    s += `<g class="pg" data-p="${p.k}" role="button" aria-label="${p.zh}">`;
-    s += line(p.lon, R_SIGN, p.lon, R_SIGN - 10, `stroke="var(--ink)" stroke-width="1.2"`);
-    s += line(p.lon, R_SIGN - 10, L, R_PL + 17, `stroke="var(--rule)" stroke-width=".8"`);
-    s += `<circle cx="${f(x)}" cy="${f(y)}" r="16" fill="var(--surface)" stroke="var(--${signOf(p.lon)[2]})" stroke-width="1.4"/>`;
-    s += `<text ${p.k === "Node" ? 'class="gl" ' : ""}x="${f(x)}" y="${f(y)}" font-size="18" font-weight="700" fill="var(--ink)" text-anchor="middle" dominant-baseline="central">${txt}${p.k === "Node" ? VS : ""}</text>`;
-    if (p.retro && p.k !== "Node") { const [rx, ry] = P(L, R_PL - 24); s += `<text x="${f(rx)}" y="${f(ry)}" font-size="12" font-weight="700" fill="var(--mark)" text-anchor="middle" dominant-baseline="central">R</text>`; }
+    const L = d + ref;
+    s += `<g class="pg" data-p="${p.k}" tabindex="0" role="button" aria-label="${p.zh}，${signOf(p.lon)[0]}座 ${degText(p.lon)}">`;
+    s += line(p.lon, R_SIGN, p.lon, R_SIGN - 9, `stroke="var(--ink)" stroke-width="1.2"`);
+    s += line(p.lon, R_SIGN - 9, L, R_PL + 15, `stroke="var(--rule)" stroke-width=".6"`);
+    const [x, y] = P(L, R_PL);
+    s += `<circle cx="${f(x)}" cy="${f(y)}" r="15" fill="var(--surface)" fill-opacity=".9"/>`;
+    s += txt(L, R_PL, 23, p.glyph + VS, `class="gl" fill="var(--ink)"`);
+    s += txt(L, R_PL - 23, 10.5, `${Math.floor(norm(p.lon) % 30)}°`, `class="lt pdeg" fill="var(--muted)"`);
+    if (p.retro && p.k !== "Node") s += txt(L + 4.2, R_PL - 14, 10, "℞", `class="lt" fill="var(--rose)"`);
     s += "</g>";
   });
   if (!c.ang) s += `<text x="${CX}" y="${CY}" font-size="12" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">沒有出生時間，不分宮</text>`;
   $("wheel").innerHTML = s;
 }
 function renderPlanets(c) {
-  $("plist").innerHTML = c.pts.map(p => {
-    const S = signOf(p.lon);
-    const house = p.house ? `，在第 ${p.house} 宮（${HOUSES[p.house - 1]}）` : "";
-    return `<li class="prow" data-p="${p.k}" tabindex="0" role="button" aria-pressed="false" style="${elVars(S)}">
-      <span class="pn">${p.zh}</span>
-      <span class="ps"><b>${S[0]}座</b><span class="deg">${degText(p.lon)}</span>${p.house ? `<span class="deg">· 第 ${p.house} 宮</span>` : ""}${p.retro && p.k !== "Node" ? '<span class="rx">逆行</span>' : ""}</span>
-      <p>${p.mean}。落在${S[0]}座：${S[3]}${house}。</p></li>`;
-  }).join("") + (c.ang ? [["Asc", "上升點", c.ang.asc, "你面對世界的方式，別人對你的第一印象"], ["Mc", "天頂", c.ang.mc, "你想在社會上成為什麼樣的人，事業的方向"]].map(([k, n, L, m]) => {
-    const S = signOf(L);
-    return `<li class="prow" data-p="${k}" tabindex="0" role="button" aria-pressed="false" style="${elVars(S)}"><span class="pn">${n}</span>
-      <span class="ps"><b>${S[0]}座</b><span class="deg">${degText(L)}</span></span><p>${m}。落在${S[0]}座：${S[3]}。</p></li>`;
-  }).join("") : "");
-}
-function renderAspects(c) {
-  $("alist").innerHTML = c.asp.length ? c.asp.map(x => `<li style="--c:var(--${x.A.c})" data-a="${x.p.k}" data-b="${x.q.k}">
-      <span>${x.p.zh}</span><span class="at"><span class="g">${x.A.g}${VS}</span> ${x.A.n}</span><span>${x.q.zh}</span>
-      <span class="orb" title="容許度">${x.orb.toFixed(1)}°</span></li>`).join("")
-    : `<li class="hint">沒有落在容許度內的主要相位。</li>`;
+  const rows = c.pts.map(p => ({ k: p.k, g: p.glyph + VS, n: p.zh, lon: p.lon, house: p.house, retro: p.retro && p.k !== "Node", mean: p.mean }));
+  if (c.ang) Object.entries({ Asc: c.ang.asc, Mc: c.ang.mc }).forEach(([k, L]) => rows.push({ k, g: `<span class="num" style="font-size:15px;font-style:italic">${ANGLE_PTS[k][2]}</span>`, n: ANGLE_PTS[k][0], lon: L, mean: ANGLE_PTS[k][3] }));
+  $("plist").innerHTML = rows.map(r => {
+    const S = signOf(r.lon);
+    const where = r.house ? `，在第 ${r.house} 宮（${HOUSES[r.house - 1][1]}）` : "";
+    return `<li class="prow" data-p="${r.k}" tabindex="0" role="button" aria-pressed="false" style="${elVar(S)}">
+      <span class="pg-g">${r.g}</span>
+      <span class="pn">${r.n}<span class="sgn">${S[0]}座</span></span>
+      <span class="pd">${degText(r.lon)}${r.house ? `<small>${r.house} 宮</small>` : ""}${r.retro ? '<span class="rx">逆行</span>' : ""}</span>
+      <p>${r.mean}。落在${S[0]}座：${S[3]}${where}。</p></li>`;
+  }).join("");
 }
 function renderHouses(c) {
-  $("housePanel").hidden = !c.ang;
-  if (!c.ang) return;
-  $("houseSys").textContent = `分宮制：${c.ang.houses.system}。每一宮的宮首落在哪個星座，代表你用那個星座的方式面對這個生活領域。`;
-  $("hgrid").innerHTML = c.ang.houses.cusps.map((L, i) => {
-    const S = signOf(L), inside = c.pts.filter(p => p.house === i + 1).map(p => p.zh).join("、");
-    return `<li style="${elVars(S)}"><span class="hn">${i + 1}</span><span class="hc"><b>${S[0]}座</b><span class="deg">${degText(L)}</span>${inside ? `　${inside}` : ""}</span><p>${HOUSES[i]}</p></li>`;
-  }).join("");
+  if (!c.ang) {
+    $("houseSys").textContent = "宮位要用出生時間和地點來算。勾選「不知道出生時間」時不分宮。";
+    $("htbl").innerHTML = ""; return;
+  }
+  $("houseSys").textContent = `分宮制：${c.ang.houses.system}。宮首落在哪個星座，代表你用那個星座的方式面對這個生活領域；宮位守護星飛入哪一宮，代表這件事會牽動到哪裡。`;
+  const byK = Object.fromEntries(c.pts.map(p => [p.k, p]));
+  $("htbl").innerHTML = `<thead><tr><th colspan="2">宮位</th><th>星座</th><th>守護星</th><th>飛入</th><th class="hide-s">宮內行星</th></tr></thead><tbody>` +
+    c.ang.houses.cusps.map((L, i) => {
+      const S = signOf(L), R = byK[RULERS[signIdx(L)]], RS = signOf(R.lon);
+      const inside = c.pts.filter(p => p.house === i + 1).map(p => p.zh).join("、") || "—";
+      return `<tr><td class="hn">${i + 1}</td>
+        <td class="hname">${HOUSES[i][0]}<small>${HOUSES[i][1]}</small></td>
+        <td class="sgn" style="${elVar(S)}">${S[0]}<span class="hint hide-s" style="margin-left:6px">${degText(L)}</span></td>
+        <td style="white-space:nowrap">${R.zh}</td>
+        <td class="fly"><span style="${elVar(RS)};color:var(--el)">${RS[0]}</span> <span class="num">${R.house}</span> 宮</td>
+        <td class="in hide-s">${inside}</td></tr>`;
+    }).join("") + "</tbody>";
+}
+function renderAspects(c) {
+  const keys = GRID_KEYS.filter(k => c.ang || (k !== "Asc" && k !== "Mc"));
+  const short = k => (PLANETS.find(x => x[0] === k) || [])[2] || ANGLE_PTS[k][1];
+  const found = {};
+  c.asp.forEach(x => { found[x.p.k + "|" + x.q.k] = x; found[x.q.k + "|" + x.p.k] = x; });
+  let g = `<thead><tr><th></th>${keys.map(k => `<th scope="col">${short(k)}</th>`).join("")}</tr></thead><tbody>`;
+  keys.forEach((r, i) => {
+    g += `<tr><th scope="row">${short(r)}</th>`;
+    keys.forEach((col, j) => {
+      if (j > i) g += `<td class="off"></td>`;
+      else if (j === i) g += `<td class="diag">${pGlyph(r) ? `<span class="g">${pGlyph(r)}${VS}</span>` : short(r)}</td>`;
+      else { const x = found[r + "|" + col]; g += x ? `<td title="${pName(r)} ${x.A.n} ${pName(col)}，容許度 ${x.orb.toFixed(1)}°" style="--c:var(--${x.A.c})"><span class="g">${x.A.g}${VS}</span></td>` : "<td></td>"; }
+    });
+    g += "</tr>";
+  });
+  $("agrid").innerHTML = g + "</tbody>";
+  $("legend").innerHTML = `<thead><tr><th>線條</th><th style="text-align:center">符號</th><th>角度</th><th>相位</th><th class="hide-s">意思</th></tr></thead><tbody>` +
+    ASPECTS.map(A => `<tr style="--c:var(--${A.c})"><td class="ln"><i${A.dash ? ' class="dash"' : ""}></i></td><td class="sym g">${A.g}${VS}</td><td class="ang">${A.a}°</td><td>${A.n}</td><td class="hint hide-s">${A.d}</td></tr>`).join("") + "</tbody>";
+  $("alist").innerHTML = c.asp.length ? c.asp.map(x => `<li style="--c:var(--${x.A.c})">
+      <span>${x.p.zh}</span><span class="at"><span class="g">${x.A.g}${VS}</span> ${x.A.n}</span><span>${x.q.zh}</span>
+      <span class="orb" title="容許度">${x.orb.toFixed(1)}°</span></li>`).join("")
+    : `<li class="hint">沒有落在容許度內的相位。</li>`;
 }
 let current = null, focusP = null;
 function setFocus(k) {
   focusP = focusP === k ? null : k;
   $("wheel").classList.toggle("focus", !!focusP);
-  document.querySelectorAll("#wheel .asp").forEach(g => g.classList.toggle("on", !!focusP && (g.dataset.a === focusP || g.dataset.b === focusP)));
+  const linked = new Set([focusP]);
+  document.querySelectorAll("#wheel .asp").forEach(g => {
+    const on = !!focusP && (g.dataset.a === focusP || g.dataset.b === focusP);
+    g.classList.toggle("on", on);
+    if (on) { linked.add(g.dataset.a); linked.add(g.dataset.b); }
+  });
+  document.querySelectorAll("#wheel .pg").forEach(g => g.classList.toggle("on", linked.has(g.dataset.p)));
   document.querySelectorAll(".prow").forEach(r => { const on = r.dataset.p === focusP; r.classList.toggle("on", on); r.setAttribute("aria-pressed", on); });
 }
+function selectTab(id) {
+  ["p", "h", "a"].forEach(t => {
+    const on = t === id;
+    $("tab-" + t).setAttribute("aria-selected", on);
+    $("tab-" + t).tabIndex = on ? 0 : -1;
+    $("pane-" + t).hidden = !on;
+  });
+}
+
 
 // ===== 輸入 =====
 function fillTimeSelect(sel, n, unit) {
@@ -512,9 +621,7 @@ function calc(b) {
   try { current = chart(b); }
   catch (e) { $("err").textContent = "這組資料排不出星盤，請檢查日期、時間和出生地。"; return; }
   $("err").textContent = "";
-  $("sampleTag").hidden = !isSample;
-  $("b3-h").textContent = b.name ? `${b.name}的三大星座` : "三大星座";
-  renderBig3(current); renderWheel(current); renderPlanets(current); renderAspects(current); renderHouses(current);
+  renderWho(current); renderBig3(current); renderWheel(current); renderPlanets(current); renderAspects(current); renderHouses(current);
   focusP = null; setFocus(null);
 }
 
@@ -532,6 +639,16 @@ $("city").addEventListener("change", syncForm);
 $("noTime").addEventListener("change", syncForm);
 $("wheel").addEventListener("click", ev => { const g = ev.target.closest(".pg"); if (g) setFocus(g.dataset.p); });
 $("plist").addEventListener("click", ev => { const r = ev.target.closest(".prow"); if (r) setFocus(r.dataset.p); });
+$("wheel").addEventListener("keydown", ev => {
+  if (ev.key !== "Enter" && ev.key !== " ") return;
+  const g = ev.target.closest(".pg"); if (!g) return; ev.preventDefault(); setFocus(g.dataset.p);
+});
+["p", "h", "a"].forEach(t => $("tab-" + t).addEventListener("click", () => selectTab(t)));
+$("d-h").parentElement.nextElementSibling.addEventListener("keydown", ev => {
+  if (ev.key !== "ArrowRight" && ev.key !== "ArrowLeft") return;
+  const order = ["p", "h", "a"], cur = order.findIndex(t => $("tab-" + t).getAttribute("aria-selected") === "true");
+  const nx = order[(cur + (ev.key === "ArrowRight" ? 1 : 2)) % 3]; selectTab(nx); $("tab-" + nx).focus();
+});
 $("plist").addEventListener("keydown", ev => {
   if (ev.key !== "Enter" && ev.key !== " ") return;
   const r = ev.target.closest(".prow"); if (!r) return; ev.preventDefault(); setFocus(r.dataset.p);
@@ -547,6 +664,7 @@ $("city").value = CITY_BY[start.city] || start.city === "custom" ? start.city : 
 $("lat").value = start.lat || ""; $("lon").value = start.lon || ""; $("tz").value = start.tz || "";
 $("remember").checked = !!saved;
 syncForm();
+selectTab("p");
 if (typeof Astronomy === "undefined") {
   $("err").textContent = "星盤計算程式沒有載入成功，請確認網路連線後重新整理頁面。";
 } else {
