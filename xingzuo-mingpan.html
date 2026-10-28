@@ -338,7 +338,11 @@ function planetLons(date) {
   });
   // 平均北交點（Meeus）
   const T = t.tt / 36525;
-  out.push({ k: "Node", lon: norm(125.04452 - 1934.136261 * T + 0.0020708 * T * T + T * T * T / 450000), retro: false });
+  const om = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + T * T * T / 450000;
+  // 加上黃經章動，換到真春分點
+  const Ls = (280.4665 + 36000.7698 * T) * D2R, Lm = (218.3165 + 481267.8813 * T) * D2R, o = om * D2R;
+  const dpsi = (-17.20 * Math.sin(o) - 1.32 * Math.sin(2 * Ls) - 0.23 * Math.sin(2 * Lm) + 0.21 * Math.sin(2 * o)) / 3600;
+  out.push({ k: "Node", lon: norm(om + dpsi), retro: false });
   return { t, out };
 }
 function angles(t, lat, lon) {
@@ -511,16 +515,30 @@ function renderWheel(c) {
   if (!c.ang) s += `<text x="${CX}" y="${CY}" font-size="12" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">沒有出生時間，不分宮</text>`;
   $("wheel").innerHTML = s;
 }
+// 星位列表的度數到秒，方便和其他排盤網站對照
+function degTextS(lon) {
+  const s = Math.floor((norm(lon) % 30) * 3600 + 1e-6);
+  return `${pad2(Math.floor(s / 3600))}°${pad2(Math.floor(s / 60) % 60)}′${pad2(s % 60)}″`;
+}
 function renderPlanets(c) {
-  const rows = c.pts.map(p => ({ k: p.k, g: p.glyph + VS, n: p.zh, lon: p.lon, house: p.house, retro: p.retro && p.k !== "Node", mean: p.mean }));
-  if (c.ang) Object.entries({ Asc: c.ang.asc, Mc: c.ang.mc }).forEach(([k, L]) => rows.push({ k, g: `<span class="num" style="font-size:15px;font-style:italic">${ANGLE_PTS[k][2]}</span>`, n: ANGLE_PTS[k][0], lon: L, mean: ANGLE_PTS[k][3] }));
+  const node = c.pts.find(p => p.k === "Node");
+  const latin = t => `<span class="num" style="font-size:15px;font-style:italic">${t}</span>`;
+  const hOf = L => c.ang ? houseOf(L, c.ang.houses.cusps) : null;
+  const rows = c.pts.filter(p => p.k !== "Node").map(p => ({ k: p.k, g: p.glyph + VS, n: p.zh, lon: p.lon, house: p.house, retro: p.retro, mean: p.mean }));
+  // 上升以下依序：上升、天頂、北交、南交、下降、天底。平均交點一直逆行
+  if (c.ang) rows.push({ k: "Asc", g: latin("AC"), n: "上升點", lon: c.ang.asc, house: 1, mean: ANGLE_PTS.Asc[3] },
+    { k: "Mc", g: latin("MC"), n: "天頂", lon: c.ang.mc, house: 10, mean: ANGLE_PTS.Mc[3] });
+  rows.push({ k: "Node", g: "☊" + VS, n: "北交點", lon: node.lon, house: node.house, retro: true, mean: node.mean },
+    { k: "SNode", g: "☋" + VS, n: "南交點", lon: norm(node.lon + 180), house: hOf(node.lon + 180), retro: true, mean: "你天生熟悉、容易依賴的舊模式" });
+  if (c.ang) rows.push({ k: "Dsc", g: latin("DC"), n: "下降點", lon: norm(c.ang.asc + 180), house: 7, mean: "你會被什麼樣的人吸引，想要的伴侶和合作對象" },
+    { k: "Ic", g: latin("IC"), n: "天底", lon: norm(c.ang.mc + 180), house: 4, mean: "你的根、家庭背景，以及內心最私密的地方" });
   $("plist").innerHTML = rows.map(r => {
     const S = signOf(r.lon);
     const where = r.house ? `，在第 ${r.house} 宮（${HOUSES[r.house - 1][1]}）` : "";
     return `<li class="prow" data-p="${r.k}" tabindex="0" role="button" aria-pressed="false" style="${elVar(S)}">
       <span class="pg-g">${r.g}</span>
       <span class="pn">${r.n}<span class="sgn">${S[0]}座</span></span>
-      <span class="pd">${degText(r.lon)}${r.house ? `<small>${r.house} 宮</small>` : ""}${r.retro ? '<span class="rx">逆行</span>' : ""}</span>
+      <span class="pd">${degTextS(r.lon)}${r.retro ? '<span class="rx">℞</span>' : ""}${r.house ? `<small>${r.house} 宮</small>` : ""}</span>
       <p>${r.mean}。落在${S[0]}座：${S[3]}${where}。</p></li>`;
   }).join("");
 }
