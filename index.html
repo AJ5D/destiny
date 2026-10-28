@@ -7,21 +7,17 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500&display=swap">
 <style>
 /* 版面：大字、單欄、留白。上方是名字，下方三個工具各佔一列，用細線分隔 */
+/* 配色：草本綠單一主題（鼠尾草綠底、深林綠字、枸杞紅點睛），不隨系統切換深色 */
 :root {
-  --paper: #F1F3EF; --ink: #1B2220; --muted: #5B6661; --rule: #D4DAD5; --accent: #2C6B5E; --mark: #B0432D;
+  --paper: #DCE6D3; --paper-hi: #E9F0E2; --ink: #1F3527; --muted: #4D6354; --rule: #B5C5AB; --accent: #3D6B47; --mark: #B4502F;
   --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --paper: #111514; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431; --accent: #74B6A5; --mark: #E07A62;
-  color-scheme: dark } }
-:root[data-theme="dark"] {
-  --paper: #111514; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431; --accent: #74B6A5; --mark: #E07A62;
-  color-scheme: dark }
 
 * { box-sizing: border-box }
 html { padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px) }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.7;
+body { margin: 0; background: radial-gradient(120% 70% at 50% 0%, var(--paper-hi), var(--paper) 70%) var(--paper); min-height: 100vh; color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.7;
   padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-block: clamp(48px, 12vh, 120px) 64px }
 .wrap { max-width: 880px; margin: 0 auto; display: grid; gap: clamp(56px, 10vw, 96px) }
 p { margin: 0 }

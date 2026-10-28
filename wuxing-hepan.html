@@ -1,29 +1,24 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>五行問卦合盤</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
 /* 版面：單欄。一、生辰（你的底色）二、問事起卦（這件事的天氣）三、合看（陰陽 + 五行喜忌）四、紀錄 */
+/* 配色：草本綠單一主題（鼠尾草綠底、深林綠字、枸杞紅點睛），不隨系統切換深色 */
 :root {
-  --paper: #F1F3EF; --surface: #FFFFFF; --ink: #1B2220; --muted: #5B6661; --rule: #D4DAD5;
-  --accent: #2C6B5E; --accent-soft: #E1ECE8; --mark: #B0432D;
+  --paper: #DCE6D3; --surface: #F4F8EF; --ink: #1F3527; --muted: #4D6354; --rule: #B5C5AB;
+  --accent: #3D6B47; --accent-soft: #E1EBD8; --mark: #B4502F;
   --wood: #3B7A4C; --fire: #B5432D; --earth: #9A7426; --metal: #6F757E; --water: #2C5888;
   --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --paper: #111514; --surface: #192020; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431;
-  --accent: #74B6A5; --accent-soft: #1F2E2A; --mark: #E07A62;
-  --wood: #6FB27F; --fire: #E07A62; --earth: #D1AA56; --metal: #A9AFB8; --water: #78A3D6;
-  color-scheme: dark } }
-:root[data-theme="dark"] {
-  --paper: #111514; --surface: #192020; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431;
-  --accent: #74B6A5; --accent-soft: #1F2E2A; --mark: #E07A62;
-  --wood: #6FB27F; --fire: #E07A62; --earth: #D1AA56; --metal: #A9AFB8; --water: #78A3D6;
-  color-scheme: dark }
 
 * { box-sizing: border-box }
-body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px }
 .wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 28px }
 h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.3 }
@@ -33,6 +28,8 @@ p { margin: 0 }
 .sec-h h2 { font-size: 22px }
 
 header { display: grid; gap: 8px }
+.home { justify-self: start; font-size: 14px; color: var(--accent); text-decoration: none }
+.home:hover { text-decoration: underline }
 header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
 header p { color: var(--muted); max-width: 36em }
 
@@ -143,6 +140,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
 
 <div class="wrap">
   <header>
+    <a class="home" href="./">← 掌上命珠</a>
     <span class="label">八字底色 × 易經問事 × 陰陽五行</span>
     <h1>五行問卦合盤</h1>
     <p>生辰看的是你本來的底色，一輩子不會變。<br>卦看的是這件事當下的天氣，每次問都不同。<br>把兩者放在一起，看這件事對你是補，還是耗。</p>
