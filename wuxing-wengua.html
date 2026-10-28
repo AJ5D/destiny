@@ -1,0 +1,427 @@
+<title>五行問卦</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* 版面：單欄工具。上方問題與擲卦，下方卦象、五行關係、反思問題，最後是自己的問卦紀錄 */
+:root {
+  --paper: #F1F3EF;
+  --surface: #FFFFFF;
+  --ink: #1B2220;
+  --muted: #5B6661;
+  --rule: #D4DAD5;
+  --accent: #2C6B5E;
+  --accent-soft: #E1ECE8;
+  --mark: #B0432D;
+  --wood: #3B7A4C; --fire: #B5432D; --earth: #9A7426; --metal: #6F757E; --water: #2C5888;
+  --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #111514; --surface: #192020; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431;
+  --accent: #74B6A5; --accent-soft: #1F2E2A; --mark: #E07A62;
+  --wood: #6FB27F; --fire: #E07A62; --earth: #D1AA56; --metal: #A9AFB8; --water: #78A3D6;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #111514; --surface: #192020; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431;
+  --accent: #74B6A5; --accent-soft: #1F2E2A; --mark: #E07A62;
+  --wood: #6FB27F; --fire: #E07A62; --earth: #D1AA56; --metal: #A9AFB8; --water: #78A3D6;
+  color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px }
+.wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 28px }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.3 }
+p { margin: 0 }
+.label { font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 500 }
+
+header { display: grid; gap: 8px }
+header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
+header p { color: var(--muted); max-width: 34em }
+
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 16px; min-width: 0 }
+
+label[for="q"] { display: block }
+#q { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink) }
+#q:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+
+.toss { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center }
+.coins { display: flex; gap: 10px }
+.coin { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center;
+  font-family: var(--f-display); font-weight: 900; font-size: 18px; background: var(--paper) }
+.coin.yang { background: var(--ink); color: var(--paper) }
+.coin.spin { animation: spin .5s ease-in-out }
+@keyframes spin { 0% { transform: rotateY(0) } 100% { transform: rotateY(720deg) } }
+.toss-info { font-size: 14px; color: var(--muted); min-width: 0 }
+.toss-info strong { color: var(--ink) }
+
+.btns { display: flex; flex-wrap: wrap; gap: 10px }
+button { font: inherit; font-weight: 500; border-radius: 4px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
+button.ghost { background: transparent; color: var(--accent) }
+button:disabled { opacity: .4; cursor: default }
+
+.reading { display: grid; gap: 20px }
+.sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
+.hexes { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center }
+.hex { display: grid; gap: 10px; justify-items: center; text-align: center; min-width: 0 }
+.hex .num { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums }
+.hex h2 { font-size: clamp(22px, 5vw, 28px) }
+.hex .theme { font-size: 14px; color: var(--muted) }
+.arrow { font-size: 22px; color: var(--muted) }
+.lines { display: flex; flex-direction: column-reverse; gap: 7px; width: 112px }
+.ln { position: relative; height: 12px; display: flex; gap: 14px }
+.ln span { flex: 1; background: var(--ink); border-radius: 2px }
+.ln.empty span { background: var(--rule) }
+.ln .mv { position: absolute; right: -22px; top: -5px; font-size: 14px; color: var(--mark); font-weight: 700 }
+.hex.zhi .ln span { background: var(--muted) }
+.hex.none { opacity: .45 }
+
+.tri { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.tri > div { border-top: 3px solid var(--el); padding-top: 10px; display: grid; gap: 2px; min-width: 0 }
+.tri .sym { font-size: 26px; line-height: 1; color: var(--el) }
+.tri b { font-family: var(--f-display); font-size: 18px }
+.tri small { color: var(--muted); font-size: 13px }
+
+.rel { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; display: grid; gap: 6px }
+.rel h3 { font-size: 20px }
+.rel .flow { font-size: 14px; color: var(--muted) }
+.qs { margin: 0; padding-left: 1.3em; display: grid; gap: 8px }
+.change { font-size: 15px; color: var(--muted) }
+
+.note-row { display: grid; gap: 8px }
+#note { width: 100%; font: inherit; min-height: 84px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); resize: vertical }
+.saved-msg { font-size: 14px; color: var(--accent) }
+
+.journal ul { list-style: none; margin: 0; padding: 0; display: grid }
+.journal li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--rule) }
+.journal li:first-child { border-top: 0 }
+.journal .jq { font-weight: 500; min-width: 0; overflow-wrap: anywhere }
+.journal .jm { grid-column: 1; font-size: 13px; color: var(--muted) }
+.journal .jn { grid-column: 1 / -1; font-size: 14px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere }
+.journal .del { grid-row: 1; grid-column: 2; padding: 2px 8px; font-size: 13px; border: 0; background: transparent; color: var(--muted) }
+.empty-j { color: var(--muted); font-size: 14px }
+
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
+
+@media (max-width: 520px) {
+  .toss { grid-template-columns: 1fr }
+  .hexes { grid-template-columns: 1fr; }
+  .arrow { transform: rotate(90deg); justify-self: center }
+}
+@media (prefers-reduced-motion: reduce) { .coin.spin { animation: none } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="label">易經六十四卦 · 五行生剋</span>
+    <h1>五行問卦</h1>
+    <p>帶著一個問題來，擲六次硬幣得出一卦。卦不替你做決定，它給你一個換角度想的起點。</p>
+  </header>
+
+  <section class="panel" aria-labelledby="ask-h">
+    <h2 id="ask-h" class="label" style="font-family:var(--f-body)">一、寫下你的問題</h2>
+    <label for="q" class="label" hidden>你的問題</label>
+    <input id="q" type="text" maxlength="80" placeholder="例如：我該不該接下這個新專案？">
+    <div class="toss">
+      <div class="coins" aria-hidden="true">
+        <div class="coin" id="c0">·</div><div class="coin" id="c1">·</div><div class="coin" id="c2">·</div>
+      </div>
+      <p class="toss-info" id="tossInfo" aria-live="polite">三枚硬幣一起擲，正面記 3、反面記 2。擲六次，由下往上排出六爻。</p>
+    </div>
+    <div class="btns">
+      <button id="tossBtn">擲第 1 爻</button>
+      <button id="allBtn" class="ghost">一次擲完</button>
+      <button id="resetBtn" class="ghost" hidden>重新起卦</button>
+    </div>
+  </section>
+
+  <section class="panel reading" id="reading" aria-live="polite"></section>
+
+  <section class="panel journal" aria-labelledby="j-h">
+    <h2 id="j-h" class="label" style="font-family:var(--f-body)">我的問卦紀錄</h2>
+    <ul id="jList"></ul>
+    <p class="empty-j" id="jEmpty">還沒有紀錄。起完一卦後按「存進紀錄」，過一陣子回來看，會比當下看得更清楚。紀錄只存在這台裝置的瀏覽器裡。</p>
+  </section>
+
+  <footer>
+    <p>八卦配五行依後天八卦：乾、兌屬金，離屬火，震、巽屬木，坎屬水，艮、坤屬土。下卦視為你自己（內），上卦視為你所處的情境（外）。</p>
+    <p>這是一個反思工具，不做預測，也不取代專業意見。</p>
+  </footer>
+</div>
+
+<script>
+// 八卦：bits 由下往上
+const TRI = {
+  乾: { bits: "111", sym: "☰", img: "天", el: "金" },
+  兌: { bits: "110", sym: "☱", img: "澤", el: "金" },
+  離: { bits: "101", sym: "☲", img: "火", el: "火" },
+  震: { bits: "100", sym: "☳", img: "雷", el: "木" },
+  巽: { bits: "011", sym: "☴", img: "風", el: "木" },
+  坎: { bits: "010", sym: "☵", img: "水", el: "水" },
+  艮: { bits: "001", sym: "☶", img: "山", el: "土" },
+  坤: { bits: "000", sym: "☷", img: "地", el: "土" }
+};
+const BY_BITS = Object.fromEntries(Object.entries(TRI).map(([k, v]) => [v.bits, k]));
+// 文王卦序：列為下卦、欄為上卦，順序 乾 震 坎 艮 坤 巽 離 兌
+const ORDER = ["乾", "震", "坎", "艮", "坤", "巽", "離", "兌"];
+const KW = [
+  [1, 34, 5, 26, 11, 9, 14, 43],
+  [25, 51, 3, 27, 24, 42, 21, 17],
+  [6, 40, 29, 4, 7, 59, 64, 47],
+  [33, 62, 39, 52, 15, 53, 56, 31],
+  [12, 16, 8, 23, 2, 20, 35, 45],
+  [44, 32, 48, 18, 46, 57, 50, 28],
+  [13, 55, 63, 22, 36, 37, 30, 49],
+  [10, 54, 60, 41, 19, 61, 38, 58]
+];
+const HEX = [null,
+  ["乾", "自強不息，主動開創"], ["坤", "厚德載物，順勢承接"], ["屯", "萬事起頭難，先扎根"], ["蒙", "承認還不懂，願意學"],
+  ["需", "時機未到，耐心等待"], ["訟", "爭執與衝突"], ["師", "組織與紀律"], ["比", "親近與結盟"],
+  ["小畜", "小有累積，蓄勢待發"], ["履", "小心走每一步"], ["泰", "上下相通，順暢"], ["否", "閉塞不通"],
+  ["同人", "找到同心的人"], ["大有", "豐盛，擁有很多"], ["謙", "放低姿態"], ["豫", "喜悅與預備"],
+  ["隨", "跟隨與順應"], ["蠱", "整頓舊問題"], ["臨", "親自靠近、到場"], ["觀", "退一步觀察"],
+  ["噬嗑", "咬開障礙"], ["賁", "修飾與外在形式"], ["剝", "剝落、消退"], ["復", "回到起點，重新開始"],
+  ["无妄", "真誠，不妄為"], ["大畜", "厚植實力"], ["頤", "你在餵養什麼"], ["大過", "負荷過重"],
+  ["坎", "重重險阻"], ["離", "依附與光明"], ["咸", "感應與吸引"], ["恆", "持久與恆常"],
+  ["遯", "適時退開"], ["大壯", "力量正盛"], ["晉", "向前、上升"], ["明夷", "收斂光芒，保護自己"],
+  ["家人", "內部關係與分工"], ["睽", "差異與分歧"], ["蹇", "路不好走"], ["解", "解開、鬆綁"],
+  ["損", "減少、捨得"], ["益", "增加、受益"], ["夬", "果斷決定"], ["姤", "不期而遇"],
+  ["萃", "聚集"], ["升", "一步步往上"], ["困", "受困"], ["井", "源源不絕的資源"],
+  ["革", "變革"], ["鼎", "建立新秩序"], ["震", "震動、驚醒"], ["艮", "停下來"],
+  ["漸", "循序漸進"], ["歸妹", "位置與名分不對等"], ["豐", "盛大到頂點"], ["旅", "身為過客"],
+  ["巽", "柔和滲透"], ["兌", "喜悅與交流"], ["渙", "化開、渙散"], ["節", "節制與界線"],
+  ["中孚", "內在的誠信"], ["小過", "小事可為，大事宜緩"], ["既濟", "已經完成，守住"], ["未濟", "還沒完成，仍在路上"]
+];
+const EL_VAR = { 木: "--wood", 火: "--fire", 土: "--earth", 金: "--metal", 水: "--water" };
+const GEN = { 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" };
+const KE = { 木: "土", 土: "水", 水: "火", 火: "金", 金: "木" };
+
+const REL = {
+  same: { t: "比和：內外同氣", d: "你和情境的節奏一致，阻力小，但也容易一路照舊走下去。",
+    q: ["如果一切照現在的方式繼續，三個月後你會滿意嗎？", "有什麼事因為太順，所以一直沒被你注意到？"] },
+  outGen: { t: "外生內：情境在支持你", d: "外在條件正在滋養你。這時候要問的是你願不願意接住。",
+    q: ["身邊有哪些人或資源，是你還沒開口請求的？", "你是否習慣自己扛，而錯過了別人伸出的手？"] },
+  inGen: { t: "內生外：你在付出", d: "你的力氣正流向外面，在滋養這個情境。付出是好事，前提是你知道自己為什麼付出。",
+    q: ["你投入的力氣，換回了你真正在意的東西嗎？", "哪一部分的付出，可以先停下來看看？"] },
+  inKe: { t: "內剋外：你能推動局面", d: "你有能力影響情境，但需要用力，也會有摩擦。",
+    q: ["這件事裡，哪一步是你可以主動推的？", "除了用力推，有沒有更省力的做法？"] },
+  outKe: { t: "外剋內：情境在壓你", d: "外在條件對你形成壓力。先分清楚哪些壓力是必須承受的，哪些不是。",
+    q: ["壓力主要從哪裡來？哪一部分你其實可以不接？", "如果先把自己顧好，下一步會是什麼？"] }
+};
+
+function relation(inner, outer) {
+  if (inner === outer) return "same";
+  if (GEN[outer] === inner) return "outGen";
+  if (GEN[inner] === outer) return "inGen";
+  if (KE[inner] === outer) return "inKe";
+  return "outKe";
+}
+function flowText(inner, outer, key) {
+  if (key === "same") return `下卦${inner} · 上卦${outer}`;
+  if (key === "outGen") return `上卦${outer} 生 下卦${inner}`;
+  if (key === "inGen") return `下卦${inner} 生 上卦${outer}`;
+  if (key === "inKe") return `下卦${inner} 剋 上卦${outer}`;
+  return `上卦${outer} 剋 下卦${inner}`;
+}
+function hexFromBits(bits) {
+  const lower = BY_BITS[bits.slice(0, 3).join("")], upper = BY_BITS[bits.slice(3).join("")];
+  const n = KW[ORDER.indexOf(lower)][ORDER.indexOf(upper)];
+  const [name, theme] = HEX[n];
+  const full = lower === upper ? `${name}為${TRI[lower].img}` : `${TRI[upper].img}${TRI[lower].img}${name}`;
+  return { n, name, full, theme, lower, upper, bits };
+}
+function linesHTML(vals, bits, showMoving) {
+  let h = "";
+  for (let i = 0; i < 6; i++) {
+    if (bits[i] === undefined) { h += `<div class="ln empty"><span></span></div>`; continue; }
+    const yang = bits[i] === 1;
+    const mv = showMoving && (vals[i] === 6 || vals[i] === 9) ? `<i class="mv" title="變爻">${vals[i] === 9 ? "○" : "×"}</i>` : "";
+    h += `<div class="ln">${yang ? "<span></span>" : "<span></span><span></span>"}${mv}</div>`;
+  }
+  return `<div class="lines" aria-hidden="true">${h}</div>`;
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+let vals = [];
+let sample = true;
+const SAMPLE_Q = "要不要在明年初換工作？";
+const SAMPLE_VALS = [7, 8, 9, 7, 8, 8];
+
+const $ = id => document.getElementById(id);
+const reading = $("reading");
+
+function rand2() { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] & 1; }
+function tossOne() {
+  const coins = [rand2(), rand2(), rand2()]; // 1 = 正面(3)
+  const v = coins.reduce((s, c) => s + (c ? 3 : 2), 0);
+  return { coins, v };
+}
+const NAMES = { 6: "老陰（變）", 7: "少陽", 8: "少陰", 9: "老陽（變）" };
+
+function showCoins(coins, v, idx) {
+  coins.forEach((c, i) => {
+    const el = $("c" + i);
+    el.classList.remove("spin"); void el.offsetWidth; el.classList.add("spin");
+    el.textContent = c ? "正" : "反";
+    el.classList.toggle("yang", !!c);
+  });
+  $("tossInfo").innerHTML = `第 ${idx} 爻：${coins.map(c => c ? 3 : 2).join(" + ")} = <strong>${v}，${NAMES[v]}</strong>`;
+}
+
+function updateButtons() {
+  const n = vals.length;
+  $("tossBtn").disabled = n >= 6;
+  $("allBtn").disabled = n >= 6;
+  $("tossBtn").textContent = n >= 6 ? "六爻已成" : `擲第 ${n + 1} 爻`;
+  $("resetBtn").hidden = n === 0;
+}
+
+function startFresh() {
+  if (sample) { sample = false; vals = []; }
+}
+
+function doToss() {
+  startFresh();
+  if (vals.length >= 6) return;
+  const { coins, v } = tossOne();
+  vals.push(v);
+  showCoins(coins, v, vals.length);
+  updateButtons();
+  render();
+}
+function doAll() {
+  startFresh();
+  let last;
+  while (vals.length < 6) { last = tossOne(); vals.push(last.v); }
+  if (last) showCoins(last.coins, last.v, 6);
+  updateButtons();
+  render();
+}
+function doReset() {
+  vals = []; sample = false;
+  [0, 1, 2].forEach(i => { const el = $("c" + i); el.textContent = "·"; el.classList.remove("yang"); });
+  $("tossInfo").textContent = "三枚硬幣一起擲，正面記 3、反面記 2。擲六次，由下往上排出六爻。";
+  updateButtons(); render();
+}
+
+function render() {
+  const v = sample ? SAMPLE_VALS : vals;
+  const q = sample ? SAMPLE_Q : ($("q").value.trim() || "（沒有寫下問題）");
+  const bits = v.map(x => (x === 7 || x === 9) ? 1 : 0);
+
+  if (v.length < 6) {
+    reading.innerHTML = `<span class="label">二、卦象成形中</span>
+      <div class="hexes"><div class="hex">${linesHTML(v, bits, true)}<p class="theme">已擲 ${v.length} / 6 爻，由下往上</p></div></div>`;
+    return;
+  }
+  const ben = hexFromBits(bits);
+  const moving = v.map((x, i) => (x === 6 || x === 9) ? i + 1 : 0).filter(Boolean);
+  const zhiBits = v.map(x => x === 9 ? 0 : x === 6 ? 1 : (x === 7 ? 1 : 0));
+  const zhi = moving.length ? hexFromBits(zhiBits) : null;
+
+  const lo = TRI[ben.lower], up = TRI[ben.upper];
+  const rk = relation(lo.el, up.el), R = REL[rk];
+
+  let changeText;
+  if (!moving.length) changeText = "沒有變爻：局面相對穩定，以本卦為主來思考。";
+  else if (moving.length === 6) changeText = "六爻皆變：整個局面都在翻轉，之卦比本卦更值得留意。";
+  else changeText = `第 ${moving.join("、")} 爻是變爻：事情正在變動。本卦是現在的樣子，之卦是它可能的走向。`;
+
+  let zhiRel = "";
+  if (zhi) {
+    const zl = TRI[zhi.lower], zu = TRI[zhi.upper], zk = relation(zl.el, zu.el);
+    zhiRel = `<p class="change">走向之卦後，內外關係變成「${REL[zk].t}」（${flowText(zl.el, zu.el, zk)}）。</p>`;
+  }
+
+  reading.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">
+      <span class="label">二、你得到的卦</span>
+      ${sample ? '<span class="sample-tag">範例：示範起卦，按上方「擲第 1 爻」開始你自己的</span>' : ""}
+    </div>
+    <p><span class="label">問題</span><br>${esc(q)}</p>
+    <div class="hexes">
+      <div class="hex">
+        <span class="num">本卦 · 第 ${ben.n} 卦</span>
+        ${linesHTML(v, bits, true)}
+        <h2>${ben.full}</h2>
+        <p class="theme">${ben.theme}</p>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="hex zhi ${zhi ? "" : "none"}">
+        <span class="num">${zhi ? `之卦 · 第 ${zhi.n} 卦` : "之卦"}</span>
+        ${zhi ? linesHTML(zhiBits, zhiBits, false) : linesHTML([], [], false)}
+        <h2>${zhi ? zhi.full : "無"}</h2>
+        <p class="theme">${zhi ? zhi.theme : "沒有變爻"}</p>
+      </div>
+    </div>
+    <p class="change">${changeText}</p>
+
+    <div class="tri">
+      <div style="--el:var(${EL_VAR[lo.el]})"><span class="label">下卦 · 你自己</span><span class="sym">${lo.sym}</span><b>${ben.lower}（${lo.img}）</b><small>五行屬${lo.el}</small></div>
+      <div style="--el:var(${EL_VAR[up.el]})"><span class="label">上卦 · 你的情境</span><span class="sym">${up.sym}</span><b>${ben.upper}（${up.img}）</b><small>五行屬${up.el}</small></div>
+    </div>
+
+    <div class="rel">
+      <span class="flow">${flowText(lo.el, up.el, rk)}</span>
+      <h3>${R.t}</h3>
+      <p>${R.d}</p>
+      ${zhiRel}
+    </div>
+
+    <div>
+      <span class="label">三、帶著這些問題想一想</span>
+      <ol class="qs">
+        <li>「${ben.theme}」這幾個字，放在你的問題裡，指的是什麼？</li>
+        <li>${R.q[0]}</li>
+        <li>${R.q[1]}</li>
+        ${zhi ? `<li>如果事情真的往「${zhi.theme}」走，你現在可以先準備什麼？</li>` : ""}
+      </ol>
+    </div>
+
+    <div class="note-row">
+      <label for="note" class="label">四、寫下你的想法（可留空）</label>
+      <textarea id="note" maxlength="600" placeholder="看到這一卦，你第一個想到的是什麼？"></textarea>
+      <div class="btns"><button id="saveBtn">存進紀錄</button><span class="saved-msg" id="savedMsg" aria-live="polite"></span></div>
+    </div>`;
+
+  $("saveBtn").addEventListener("click", () => {
+    const entry = { t: Date.now(), q, ben: ben.full, benN: ben.n, zhi: zhi ? zhi.full : "", rel: R.t, note: $("note").value.trim(), sample };
+    const list = loadJ(); list.unshift(entry); saveJ(list.slice(0, 100));
+    $("saveBtn").disabled = true;
+    $("savedMsg").textContent = sample ? "已存入（標記為範例）" : "已存入紀錄";
+    renderJ();
+  });
+}
+
+const JKEY = "wuxing-wengua-journal";
+function loadJ() { try { return JSON.parse(localStorage.getItem(JKEY) || "[]"); } catch (e) { return []; } }
+function saveJ(list) { try { localStorage.setItem(JKEY, JSON.stringify(list)); } catch (e) {} }
+function renderJ() {
+  const list = loadJ();
+  $("jEmpty").hidden = list.length > 0;
+  $("jList").innerHTML = list.map((e, i) => {
+    const d = new Date(e.t);
+    const ds = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+    return `<li>
+      <span class="jq">${esc(e.q)}${e.sample ? "（範例）" : ""}</span>
+      <button class="del" data-i="${i}" aria-label="刪除這筆紀錄">刪除</button>
+      <span class="jm">${ds} · ${esc(e.ben)}${e.zhi ? " → " + esc(e.zhi) : ""} · ${esc(e.rel)}</span>
+      ${e.note ? `<span class="jn">${esc(e.note)}</span>` : ""}
+    </li>`;
+  }).join("");
+}
+$("jList").addEventListener("click", ev => {
+  const b = ev.target.closest(".del"); if (!b) return;
+  const list = loadJ(); list.splice(+b.dataset.i, 1); saveJ(list); renderJ();
+});
+
+$("tossBtn").addEventListener("click", doToss);
+$("allBtn").addEventListener("click", doAll);
+$("resetBtn").addEventListener("click", doReset);
+$("q").value = "";
+updateButtons();
+$("tossBtn").textContent = "擲第 1 爻";
+render();
+renderJ();
+</script>
