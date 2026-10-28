@@ -1,35 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>紫微斗數命盤</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
 /* 版面：上方輸入生辰，中間是傳統十二宮方盤（四邊十二宮、中央命盤資料），下方是點選宮位的說明 */
+/* 配色：草本綠單一主題（鼠尾草綠底、深林綠字、枸杞紅點睛），不隨系統切換深色 */
 :root {
-  --paper: #F1F3EF; --surface: #FFFFFF; --ink: #1B2220; --muted: #5B6661; --rule: #D4DAD5;
-  --accent: #2C6B5E; --accent-soft: #E1ECE8; --mark: #B0432D;
-  --star-main: #A8362A; --star-good: #2C5888; --star-bad: #1B2220; --star-adj: #5B6661;
+  --paper: #DCE6D3; --surface: #F4F8EF; --ink: #1F3527; --muted: #4D6354; --rule: #B5C5AB;
+  --accent: #3D6B47; --accent-soft: #E1EBD8; --mark: #B4502F;
+  --star-main: #A8362A; --star-good: #2C5888; --star-bad: #1F3527; --star-adj: #4D6354;
   --hua-lu: #3B7A4C; --hua-quan: #6A4A9C; --hua-ke: #2C5888; --hua-ji: #B0432D;
   --hl: #F3EEDC; --hl-line: #C9B57A;
   --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --paper: #111514; --surface: #192020; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431;
-  --accent: #74B6A5; --accent-soft: #1F2E2A; --mark: #E07A62;
-  --star-main: #EE8A74; --star-good: #82AEE0; --star-bad: #E5EAE7; --star-adj: #9AA59F;
-  --hua-lu: #6FB27F; --hua-quan: #B79BE6; --hua-ke: #82AEE0; --hua-ji: #EE8A74;
-  --hl: #2A2A1E; --hl-line: #8F7F4C;
-  color-scheme: dark } }
-:root[data-theme="dark"] {
-  --paper: #111514; --surface: #192020; --ink: #E5EAE7; --muted: #9AA59F; --rule: #2B3431;
-  --accent: #74B6A5; --accent-soft: #1F2E2A; --mark: #E07A62;
-  --star-main: #EE8A74; --star-good: #82AEE0; --star-bad: #E5EAE7; --star-adj: #9AA59F;
-  --hua-lu: #6FB27F; --hua-quan: #B79BE6; --hua-ke: #82AEE0; --hua-ji: #EE8A74;
-  --hl: #2A2A1E; --hl-line: #8F7F4C;
-  color-scheme: dark }
 
 * { box-sizing: border-box }
-body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px }
 .wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 24px }
 h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.3 }
@@ -38,6 +29,8 @@ p { margin: 0 }
 .sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
 
 header { display: grid; gap: 8px }
+.home { justify-self: start; font-size: 14px; color: var(--accent); text-decoration: none }
+.home:hover { text-decoration: underline }
 header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
 header p { color: var(--muted); max-width: 36em }
 
@@ -127,6 +120,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
 
 <div class="wrap">
   <header>
+    <a class="home" href="./">← 掌上命珠</a>
     <span class="label">紫微斗數 × 十二宮 × 四化</span>
     <h1>紫微斗數命盤</h1>
     <p>輸入出生的日期、時間和性別，排出十二宮命盤。<br>點任何一宮，會標出它的三方四正，並在下方說明這一宮的星曜。</p>
