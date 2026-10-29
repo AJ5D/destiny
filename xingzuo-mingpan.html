@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Symbols&display=swap">
 <style>
 /* 版面：時尚雜誌式單欄。刊頭大標 → 出生資料 → 三大星座橫排三聯 → 單色細線星盤 → 星位／宮位／相位分頁的詳細參數 */
-/* 配色：石灰白底、墨黑字、香檳金點睛；相位用霧藍、玫瑰、鼠尾草等低彩度色，固定淺色 */
+/* 配色：和首頁一致的近白底、炭黑字、香檳金點睛；相位用霧藍、玫瑰、鼠尾草等低彩度色，固定淺色 */
 :root {
-  --paper: #EEEDE9; --surface: #F8F7F4; --ink: #171717; --muted: #6E6B67; --rule: #D5D2CC; --hair: #E3E0DA;
+  --paper: #FAFAF8; --surface: #FFFFFF; --ink: #2B2B2B; --muted: #666663; --rule: #E2E2DE; --hair: #EDEDEA;
   --gold: #A3814F; --gold-soft: #EFE7DA;
   --dusk: #5F7896; --rose: #B5615A; --sage: #6F8F6C; --taupe: #8B827A;
   --fire: #B5615A; --earth: #6F8F6C; --air: #A3814F; --water: #5F7896;
@@ -37,8 +37,6 @@ p { margin: 0 }
 
 /* 刊頭 */
 header { display: grid; gap: 14px; padding-top: 4px }
-.home { justify-self: start; font-size: 13px; color: var(--muted); text-decoration: none; letter-spacing: .08em }
-.home:hover { color: var(--ink) }
 .mast { display: grid; gap: 4px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding-block: 18px 22px }
 .mast .latin { font-family: var(--f-latin); font-style: italic; font-size: clamp(44px, 12vw, 104px); line-height: .95; letter-spacing: -.01em }
 .mast h1 { font-family: var(--f-display); font-weight: 900; font-size: clamp(30px, 7vw, 54px); letter-spacing: .3em; line-height: 1.2 }
@@ -166,11 +164,42 @@ footer { font-size: 12px; color: var(--muted); display: grid; gap: 6px; border-t
   .htbl .hn { width: 1.4em }
 }
 @media (prefers-reduced-motion: reduce) { #wheel .asp { transition: none } }
+
+/* 網站導覽列：固定在頂端，左邊回首頁，右邊切換工具 */
+.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--rule);
+  padding-top: env(safe-area-inset-top, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.sitebar .in { max-width: 880px; margin: 0 auto; height: 54px; display: flex; align-items: center; gap: 12px }
+.sitebar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; padding: 6px 12px 6px 8px; margin-left: -8px; border-radius: 999px }
+.sitebar .brand:hover { background: var(--paper) }
+.sitebar .brand .ar { font-size: 18px; line-height: 1 }
+.sitebar .brand b { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; font-weight: 700; font-size: 18px; letter-spacing: .18em }
+.sitebar .brand b i { font-style: normal; color: #B0432D }
+.sitebar nav { margin-left: auto; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none }
+.sitebar nav a { padding: 6px 12px; font-size: 14px; color: var(--muted); text-decoration: none; border-radius: 999px; white-space: nowrap }
+.sitebar nav a:hover { color: var(--ink) }
+.sitebar nav a[aria-current="page"] { color: var(--surface); background: var(--ink) }
+.sitebar a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px }
+body { padding-top: calc(54px + 28px + env(safe-area-inset-top, 0px)) }
+@media (max-width: 480px) {
+  .sitebar .in { gap: 4px }
+  .sitebar .brand { padding-right: 8px }
+  .sitebar .brand b { font-size: 16px; letter-spacing: .1em }
+  .sitebar nav a { padding: 6px 8px; font-size: 13px }
+}
+
+/* 頁首線束：和首頁主視覺同一組顏色，靜止、較淡，往下淡出，只當頁首背景 */
+.threads-bg { position: absolute; left: 0; right: 0; top: calc(54px + env(safe-area-inset-top, 0px)); height: 190px; width: 100%; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent); mask-image: linear-gradient(to bottom, #000 65%, transparent) }
+.wrap { position: relative; z-index: 1 }
 </style>
 
+<div class="sitebar"><div class="in">
+  <a class="brand" href="./" aria-label="回首頁：掌上命珠"><span class="ar" aria-hidden="true">←</span><b>掌上命<i>珠</i></b></a>
+  <nav aria-label="工具"><a href="ziwei-mingpan.html">紫微</a><a href="xingzuo-mingpan.html" aria-current="page">星座</a><a href="wuxing-wengua.html">問卦</a><a href="wuxing-hepan.html">合盤</a></nav>
+</div></div>
+<canvas class="threads-bg" aria-hidden="true"></canvas>
 <div class="wrap">
   <header>
-    <a class="home" href="./">← 掌上命珠</a>
     <div class="mast">
       <div class="row"><span class="eyebrow">The Natal Chart</span><span class="eyebrow">Tropical · Placidus</span></div>
       <span class="latin" aria-hidden="true">Natal Chart</span>
@@ -689,4 +718,28 @@ if (typeof Astronomy === "undefined") {
   const b = readBirth();
   if (!b.err) calc(b);
 }
+</script>
+<script>
+// 頁首線束：首頁主視覺的靜止淡色版
+(() => {
+  const cv = document.querySelector(".threads-bg"); if (!cv) return;
+  const ctx = cv.getContext("2d"), COLORS = ["#E8577E", "#F6DD6A", "#3FA4E0"];
+  let seed = 20261029; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const lines = Array.from({ length: 56 }, (_, i) => ({ c: COLORS[i % 3], w: .6 + rnd() * 1.1, a: .22 + rnd() * .28, off: rnd() - .5,
+    spread: .5 + rnd() * .9, f1: 1.2 + rnd() * 2.2, f2: 3 + rnd() * 4, p1: rnd() * 6.28, p2: rnd() * 6.28, amp: (rnd() < .12 ? .7 : .12) + rnd() * .45 }));
+  function draw() {
+    const W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const rise = Math.min(.6, .6 * (W / H) / 3);
+    const center = u => H * (.58 - rise * u), band = u => H * (.05 + .2 * Math.pow(u, 1.3));
+    const steps = Math.max(60, Math.round(W / 10));
+    const path = L => { ctx.beginPath(); for (let s = 0; s <= steps; s++) { const u = s / steps, x = -40 + (W + 80) * u;
+      const wob = L.amp * (Math.sin(u * L.f1 * 3.14 + L.p1) * .6 + Math.sin(u * L.f2 * 3.14 + L.p2) * .4);
+      const y = center(u) + band(u) * (L.off * L.spread + wob * (.35 + u * .65)); s ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } };
+    ctx.clearRect(0, 0, W, H); ctx.lineCap = "round";
+    for (const L of lines) { ctx.strokeStyle = L.c; ctx.globalAlpha = L.a; ctx.lineWidth = L.w; path(L); ctx.stroke(); }
+    ctx.globalAlpha = .55; ctx.strokeStyle = "#1E2A3A"; ctx.lineWidth = 2; path({ off: 0, spread: 0, amp: .18, f1: 1.4, f2: 3.2, p1: 1, p2: 2 }); ctx.stroke();
+  }
+  draw(); addEventListener("resize", draw);
+})();
 </script>
