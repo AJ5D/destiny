@@ -75,6 +75,7 @@ button { font: inherit; font-weight: 500; border-radius: 4px; padding: 10px 24px
 .col li { font-size: 14px; line-height: 1.6 }
 .col li small { display: inline-block; font-size: 11px; letter-spacing: .08em; color: var(--k); border: 1px solid currentColor; border-radius: 2px; padding: 0 4px; margin-right: 6px; vertical-align: 1px }
 .col .none { color: var(--muted) }
+.col .tip { font-size: 13px; color: var(--ink); border-top: 1px solid var(--k); padding-top: 10px; margin-top: auto }
 
 /* 個人卡 */
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
@@ -363,63 +364,118 @@ const XING = (a, b) => {
   if ((a === 0 && b === 3) || (a === 3 && b === 0)) return "相刑";
   return null;
 };
-const REL_WORD = { 伴侶: "感情和生活", 朋友: "相處", 家人: "家裡的相處", 工作夥伴: "合作和分工" };
+// 四種關係各自看的重點、用詞和權重
+const ROLE = {
+  伴侶: {
+    word: "感情和生活", intro: "看你們在親密關係裡怎麼靠近、怎麼吵架、怎麼和好。",
+    pairs: [["Venus", "Mars", "吸引力和熱情"], ["Sun", "Moon", "一方的本性，碰到另一方的情緒需要"], ["Moon", "Moon", "情緒和安全感的需要"], ["Venus", "Venus", "想過的生活樣貌，和表達愛的方式"]],
+    keyAsp: ["Venus-Mars", "Mars-Venus", "Sun-Moon", "Moon-Sun", "Moon-Venus", "Venus-Moon", "Moon-Moon", "Venus-Venus"],
+    houses: { 5: "戀愛", 7: "伴侶", 8: "親密", 4: "家庭" },
+    w: { dm: 2, need: 2, lack: 1, stem: 3, day: 3, zod: 1, kua: 2 },
+    dm: { same: "你們的個性底色相近，容易懂彼此；吵架時也可能誰都不想先讓。", gen: "{X}比較常是付出、照顧的一方，{Y}在{X}身邊容易感到被疼。記得付出的人也需要被照顧。", ke: "{X}在感情裡容易比較強勢、要求多，{Y}可能覺得有壓力。換個角度，{X}也能幫{Y}定下來。" },
+    need: "{Y}在身邊時，{X}比較安心、平衡。", lack: "{Y}擅長的事，可能正是{X}不太會的，生活上剛好互補。",
+    stem: "天干五合，傳統上看作彼此吸引、容易靠近。",
+    day: { he: "日支是夫妻宮。六合表示生活上容易配合，住在一起也自在。", san: "日支是夫妻宮。三合表示價值觀和想過的生活容易走在一起。", chong: "日支是夫妻宮。相沖表示作息、習慣或步調常常不同，住得越近越需要磨合。" },
+    kua: ["同屬一組，對居住環境和方位的偏好接近，一起住比較容易。", "分屬東、西四命，對居住空間的偏好可能不同，找房子時多商量。"],
+    tips: { sim: "相似讓你們容易懂彼此，也容易在同一個點卡住，輪流讓一步。", comp: "互補的地方就是你們的分工：讓擅長的人多做一點，也記得說聲謝謝。", fric: "摩擦多半來自表達方式不同。吵架時先講感受，再講對錯。" }
+  },
+  朋友: {
+    word: "相處", intro: "看你們玩不玩得來、聊不聊得來，以及友情裡的界線。",
+    pairs: [["Mercury", "Mercury", "聊天的頻率和說話方式"], ["Sun", "Sun", "做自己的方式和人生方向"], ["Venus", "Venus", "喜歡的東西和玩的方式"], ["Moon", "Moon", "需要被陪伴的方式"]],
+    keyAsp: ["Mercury-Mercury", "Sun-Sun", "Venus-Venus", "Sun-Mercury", "Mercury-Sun", "Moon-Moon"],
+    houses: { 11: "朋友", 3: "溝通", 5: "玩樂", 9: "一起探索" },
+    w: { dm: 2, need: 1, lack: 2, stem: 2, day: 1, zod: 2, kua: 1 },
+    dm: { same: "你們看事情的角度很像，很容易玩在一起、聊得來。", gen: "{X}常是出主意、拉{Y}一把的那個人，{Y}有事時會先想到{X}。", ke: "{X}說話比較直，{Y}有時會覺得被管。把{X}的建議當成關心就好。" },
+    need: "和{Y}在一起時，{X}比較放鬆、做回自己。", lack: "{Y}能帶{X}看到不一樣的世界。",
+    stem: "天干五合，第一次見面就容易有好感。",
+    day: { he: "日支六合，一起旅行或住在一起也不容易起摩擦。", san: "日支三合，對生活的想法容易走在一起。", chong: "日支相沖，一起出遊時節奏可能不同，先說好行程比較不會掃興。" },
+    kua: ["同一組，喜歡的環境和氛圍相近，選地方聚會很容易有共識。", "分屬東、西四命，喜歡的環境不太一樣，輪流決定去哪裡。"],
+    tips: { sim: "相似讓你們一拍即合，也要留空間給彼此不同的朋友圈。", comp: "你們能補上對方不擅長的事。找件事一起做，比只聊天更有感。", fric: "朋友不用每件事都同步。意見不同時說出來，比默默疏遠好。" }
+  },
+  家人: {
+    word: "家裡的相處", intro: "看你們在同一個屋簷下的節奏、照顧和期待。",
+    pairs: [["Moon", "Moon", "情緒和安全感的需要"], ["Sun", "Moon", "一方的本性，碰到另一方的情緒需要"], ["Mercury", "Mercury", "說話方式，家裡最常卡在這裡"], ["Sun", "Sun", "各自想走的人生方向"]],
+    keyAsp: ["Moon-Moon", "Sun-Moon", "Moon-Sun", "Mercury-Mercury", "Moon-Mercury", "Mercury-Moon"],
+    houses: { 4: "家庭", 12: "內心", 3: "溝通", 10: "期待" },
+    w: { dm: 3, need: 2, lack: 1, stem: 1, day: 2, zod: 2, kua: 3 },
+    dm: { same: "你們是家裡最像的兩個人，默契好，固執起來也一樣。", gen: "{X}在家裡比較像照顧者，{Y}容易依賴{X}。照顧的人也需要喘口氣。", ke: "{X}容易對{Y}有很多期待和要求，{Y}可能想躲開。試著先聽完再給建議。" },
+    need: "{Y}是{X}在家裡的支撐，有{Y}在比較安心。", lack: "家裡這部分的事，可以多交給{Y}。",
+    stem: "天干五合，彼此心裡有一份親近。",
+    day: { he: "日支六合，同住一個屋簷下也能自在。", san: "日支三合，對家的想像容易一致。", chong: "日支相沖，生活習慣差異大，同住時先講好規則。" },
+    kua: ["同屬一組，對房間方位和居家擺設的喜好接近，住在一起比較順。", "分屬東、西四命，對房間方位和居家擺設的喜好不同，各自的房間照自己的喜好佈置。"],
+    tips: { sim: "像的地方讓家有默契，也容易一起固執，換個人先開口。", comp: "互補就是家裡的分工：誰照顧、誰決定，說清楚就不用互相猜。", fric: "家人之間的摩擦常是期待落差。先問對方需要什麼，再給建議。" }
+  },
+  工作夥伴: {
+    word: "合作和分工", intro: "看你們怎麼分工、怎麼做決定，遇到壓力時怎麼互相撐住。",
+    pairs: [["Mercury", "Mercury", "溝通和開會的方式"], ["Mars", "Mars", "做事的節奏和衝勁"], ["Sun", "Sun", "各自想要的方向和角色"], ["Sun", "Mars", "一方的目標，碰到另一方的執行力"]],
+    keyAsp: ["Mercury-Mercury", "Mars-Mars", "Sun-Sun", "Sun-Mars", "Mars-Sun", "Mercury-Mars", "Mars-Mercury"],
+    houses: { 10: "事業", 6: "日常工作", 2: "金錢", 11: "團隊" },
+    w: { dm: 3, need: 1, lack: 3, stem: 1, day: 1, zod: 1, kua: 1 },
+    dm: { same: "做事風格接近，合作上手快；但盲點也一樣，重要決定找第三個人看。", gen: "{X}適合帶{Y}、給{Y}資源，{Y}在{X}的支持下最能發揮。", ke: "{X}容易主導決策，{Y}可能覺得沒有發揮空間。先講好分工和誰拍板。" },
+    need: "{Y}的特質剛好補上{X}需要的能量，適合搭配。", lack: "分工時，這部分交給{Y}負責。",
+    stem: "天干五合，合作初期容易有共識。",
+    day: { he: "日支六合，日常協作順手，不太需要磨合。", san: "日支三合，對工作的價值觀接近。", chong: "日支相沖，工作節奏和習慣不同，先對齊時程和做事方式。" },
+    kua: ["同一組，喜歡的工作環境相近，座位和辦公室安排容易有共識。", "分屬東、西四命，喜歡的工作環境不同，座位可以各自挑。"],
+    tips: { sim: "相似讓你們效率高，但盲點也一樣，重要決定找第三個人看。", comp: "互補就是分工的依據：把擅長的事交給對的人。", fric: "摩擦多半出在節奏和決策方式。先講好誰拍板、什麼時候檢討。" }
+  }
+};
+const fill = (t, X, Y) => t.replaceAll("{X}", X).replaceAll("{Y}", Y);
 
 function compare(A, B, rel) {
-  const F = []; // { k: sim|comp|fric, src, title, text, ref }
+  const R = ROLE[rel];
+  const F = []; // { k: sim|comp|fric, src, title, text, ref, w }
   const nA = A.label, nB = B.label;
-  const push = (k, src, title, text, ref) => F.push({ k, src, title, text, ref });
+  const push = (k, src, title, text, ref, w = 1) => F.push({ k, src, title, text, ref, w, i: F.length });
   // --- 五行 ---
   const eA = A.an.dm, eB = B.an.dm;
-  if (eA === eB) push("sim", "五行", `日主同屬${eA}`, `你們的個性底色相近，容易懂彼此在想什麼；也可能在同一件事上較勁，誰都不想先讓。`);
-  else if (GEN[eA] === eB) push("comp", "五行", `${nA}的${eA}生${nB}的${eB}`, `${nA}比較常扮演付出、照顧的角色，${nB}容易從${nA}身上得到支持。記得付出的一方也需要被照顧。`);
-  else if (GEN[eB] === eA) push("comp", "五行", `${nB}的${eB}生${nA}的${eA}`, `${nB}比較常扮演付出、照顧的角色，${nA}容易從${nB}身上得到支持。記得付出的一方也需要被照顧。`);
-  else if (KE[eA] === eB) push("fric", "五行", `${nA}的${eA}剋${nB}的${eB}`, `${nA}容易不自覺地主導、要求，${nB}可能覺得有壓力。換個角度，這也是${nA}能幫${nB}收斂、定下來的地方。`);
-  else push("fric", "五行", `${nB}的${eB}剋${nA}的${eA}`, `${nB}容易不自覺地主導、要求，${nA}可能覺得有壓力。換個角度，這也是${nB}能幫${nA}收斂、定下來的地方。`);
+  if (eA === eB) push("sim", "五行", `日主同屬${eA}`, R.dm.same, "", R.w.dm);
+  else [[A, B], [B, A]].forEach(([X, Y]) => {
+    if (GEN[X.an.dm] === Y.an.dm) push("comp", "五行", `${X.label}的${X.an.dm}生${Y.label}的${Y.an.dm}`, fill(R.dm.gen, X.label, Y.label), "", R.w.dm);
+    if (KE[X.an.dm] === Y.an.dm) push("fric", "五行", `${X.label}的${X.an.dm}剋${Y.label}的${Y.an.dm}`, fill(R.dm.ke, X.label, Y.label), "", R.w.dm);
+  });
   [[A, B], [B, A]].forEach(([X, Y]) => {
-    if (X.an.needs.includes(Y.an.dm)) push("comp", "五行", `${Y.label}的${Y.an.dm}，是${X.label}需要的五行`, `${X.label}的底色${X.an.strength}，比較需要${X.an.needs.join("、")}；${Y.label}的日主正好屬${Y.an.dm}，在身邊時能幫${X.label}找回平衡。`);
+    if (X.an.needs.includes(Y.an.dm)) push("comp", "五行", `${Y.label}的${Y.an.dm}，是${X.label}需要的五行`, `${X.label}的底色${X.an.strength}，比較需要${X.an.needs.join("、")}；${Y.label}的日主正好屬${Y.an.dm}。${fill(R.need, X.label, Y.label)}`, "", R.w.need);
     const lack = ELS.filter(e => X.an.cnt[e] === 0 && Y.an.cnt[e] >= 2);
-    if (lack.length) push("comp", "五行", `${Y.label}補上${X.label}缺的${lack.join("、")}`, `${X.label}的命局沒有${lack.join("、")}，${Y.label}剛好有不少。${Y.label}擅長的事，可能正是${X.label}不太會的。`);
+    if (lack.length) push("comp", "五行", `${Y.label}補上${X.label}缺的${lack.join("、")}`, `${X.label}的命局沒有${lack.join("、")}，${Y.label}剛好有不少。${fill(R.lack, X.label, Y.label)}`, "", R.w.lack);
   });
   const [sA, sB] = [A.bz.day[0], B.bz.day[0]];
-  if (Math.abs(sA - sB) === 5) push("comp", "八字", `日干${STEMS[sA]}${STEMS[sB]}相合`, `天干五合，傳統上看作彼此吸引、容易靠近。`);
+  if (Math.abs(sA - sB) === 5) push("comp", "八字", `日干${STEMS[sA]}${STEMS[sB]}相合`, R.stem, "", R.w.stem);
   const [dA, dB] = [A.bz.day[1], B.bz.day[1]], dName = `日支${BRANCHES[dA]}${BRANCHES[dB]}`;
-  if (LIU_HE(dA, dB)) push("comp", "八字", `${dName}六合`, `日支代表最貼近自己的生活和親密關係。六合表示生活上容易配合，相處起來自在。`);
-  else if (SAN_HE(dA, dB)) push("comp", "八字", `${dName}三合`, `日支三合，價值觀和生活方向容易走在一起。`);
-  else if (LIU_CHONG(dA, dB)) push("fric", "八字", `${dName}相沖`, `日支代表最貼近自己的生活。相沖表示作息、習慣或步調常常不同，住得越近越需要磨合。`);
-  else if (XING(dA, dB)) push("fric", "八字", `${dName}${XING(dA, dB)}`, `日支相刑，容易在小地方互相看不順眼，說話時多留一點餘地。`);
-  else if (dA === dB) push("sim", "八字", `日支相同（${BRANCHES[dA]}）`, `生活上的偏好和節奏很像。`);
+  if (LIU_HE(dA, dB)) push("comp", "八字", `${dName}六合`, R.day.he, "", R.w.day);
+  else if (SAN_HE(dA, dB)) push("comp", "八字", `${dName}三合`, R.day.san, "", R.w.day);
+  else if (LIU_CHONG(dA, dB)) push("fric", "八字", `${dName}相沖`, R.day.chong, "", R.w.day);
+  else if (XING(dA, dB)) push("fric", "八字", `${dName}${XING(dA, dB)}`, `日支相刑，容易在小地方互相看不順眼，說話時多留一點餘地。`, "", R.w.day);
+  else if (dA === dB) push("sim", "八字", `日支相同（${BRANCHES[dA]}）`, `生活上的偏好和節奏很像。`, "", R.w.day);
   const [yA, yB] = [A.bz.year[1], B.bz.year[1]], zName = `生肖${ZODIAC[yA]}和${ZODIAC[yB]}`;
-  if (yA === yB) push("sim", "生肖", `同屬${ZODIAC[yA]}`, `同一個生肖，成長的時代氛圍和做事習慣相近。`);
-  else if (LIU_HE(yA, yB)) push("comp", "生肖", `${zName}六合`, `傳統上的好搭檔，彼此容易互相幫忙。`);
-  else if (SAN_HE(yA, yB)) push("comp", "生肖", `${zName}三合`, `傳統上的好搭檔，目標和想法容易一致。`);
-  else if (LIU_CHONG(yA, yB)) push("fric", "生肖", `${zName}相沖`, `傳統說法是個性容易對立。其實多半是做事方式不同，講清楚各自的想法就好。`);
+  if (yA === yB) push("sim", "生肖", `同屬${ZODIAC[yA]}`, `同一個生肖，成長的時代氛圍和做事習慣相近。`, "", R.w.zod);
+  else if (LIU_HE(yA, yB)) push("comp", "生肖", `${zName}六合`, `傳統上的好搭檔，彼此容易互相幫忙。`, "", R.w.zod);
+  else if (SAN_HE(yA, yB)) push("comp", "生肖", `${zName}三合`, `傳統上的好搭檔，目標和想法容易一致。`, "", R.w.zod);
+  else if (LIU_CHONG(yA, yB)) push("fric", "生肖", `${zName}相沖`, `傳統說法是個性容易對立。其實多半是做事方式不同，講清楚各自的想法就好。`, "", R.w.zod);
   // --- 八宅命卦 ---
   const yn = YOUNIAN[A.kg.code ^ B.kg.code];
-  push(yn[1], "八宅", `${A.kg.name}卦配${B.kg.name}卦：${yn[0]}`, `${nA}是${A.kg.name}卦（${A.kg.group}），${nB}是${B.kg.name}卦（${B.kg.group}）。${yn[2]}。${A.kg.group === B.kg.group ? "同屬一組，對居住環境和方位的偏好也比較接近。" : "分屬東、西四命，對居住空間和生活節奏的偏好可能不同。"}`);
-  // --- 星座元素 ---
+  push(yn[1], "八宅", `${A.kg.name}卦配${B.kg.name}卦：${yn[0]}`, `${nA}是${A.kg.name}卦（${A.kg.group}），${nB}是${B.kg.name}卦（${B.kg.group}）。${yn[2]}。${R.kua[A.kg.group === B.kg.group ? 0 : 1]}`, "", R.w.kua);
+  // --- 星座元素：每種關係看不同的行星配對 ---
   const elOf = lon => signOf(lon)[2];
   const elRel = (a, b) => a === b ? "sim" : ((a === "火" && b === "風") || (a === "風" && b === "火") || (a === "土" && b === "水") || (a === "水" && b === "土")) ? "comp" : "fric";
   const EL_TXT = { sim: "同屬一個元素，頻率很像，一拍就合", comp: "元素互相支持（火風、土水），一個點燃或滋養另一個", fric: "元素不同調，表達方式差很多，需要多一點翻譯" };
   const moonRef = X => X.moonAlt ? "月亮星座可能有兩種，僅供參考" : "";
-  const pairs = [
-    ["Sun", "Sun", "太陽和太陽", "你們做自己的方式"], ["Moon", "Moon", "月亮和月亮", "情緒和安全感的需要"],
-    ["Sun", "Moon", null, "一方的本性，碰到另一方的情緒需要"], ["Venus", "Mars", null, rel === "伴侶" ? "吸引力和熱情" : "喜好和行動力是否合拍"]
-  ];
-  pairs.forEach(([p, q, title, theme]) => {
+  R.pairs.forEach(([p, q, theme], idx) => {
     const combos = p === q ? [[A, B]] : [[A, B], [B, A]];
     combos.forEach(([X, Y]) => {
       const a = X.pl[p], b = Y.pl[q], k = elRel(elOf(a), elOf(b));
-      const t = title || `${X.label}的${PL[p][0]}和${Y.label}的${PL[q][0]}`;
+      const t = p === q ? `${PL[p][0]}和${PL[q][0]}` : `${X.label}的${PL[p][0]}和${Y.label}的${PL[q][0]}`;
       const ref = [p, q].includes("Moon") ? (moonRef(X) || moonRef(Y)) : "";
-      push(k, "星座", `${t}：${signOf(a)[0]}（${elOf(a)}）× ${signOf(b)[0]}（${elOf(b)}）`, `看${theme}。${EL_TXT[k]}。`, ref);
+      push(k, "星座", `${t}：${signOf(a)[0]}（${elOf(a)}）× ${signOf(b)[0]}（${elOf(b)}）`, `看${theme}。${EL_TXT[k]}。`, ref, idx === 0 ? 3 : idx === 1 ? 2 : 1);
     });
   });
-  // --- 交叉相位 ---
+  // --- 交叉相位：先看這種關係最重要的行星組合 ---
   const ASP = [[0, "合相", "☌", 6, "sim", "力量綁在一起，存在感很強"], [60, "六分相", "⚹", 4, "comp", "互相幫忙的機會"], [90, "四分相", "□", 5, "fric", "互相拉扯，也互相刺激"],
     [120, "三分相", "△", 5, "comp", "自然順暢，不用多說就懂"], [180, "對分相", "☍", 6, "fric", "兩頭拉扯，也可能互相吸引"]];
-  const PAIR_MEAN = { "Sun-Moon": "日月相位是最常被拿來看的配對指標", "Moon-Sun": "日月相位是最常被拿來看的配對指標", "Venus-Mars": "金火相位看吸引力", "Mars-Venus": "金火相位看吸引力",
-    "Moon-Moon": "月月相位看情緒節奏", "Mercury-Mercury": "水星相位看溝通", "Sun-Sun": "日日相位看人生方向", "Venus-Venus": "金金相位看喜好和品味" };
+  const PAIR_MEAN = { "Sun-Moon": "日月相位看本性和情緒合不合", "Moon-Sun": "日月相位看本性和情緒合不合", "Venus-Mars": "金火相位看吸引力", "Mars-Venus": "金火相位看吸引力",
+    "Moon-Moon": "月月相位看情緒節奏", "Mercury-Mercury": "水星相位看溝通", "Sun-Sun": "日日相位看人生方向", "Venus-Venus": "金金相位看喜好和品味",
+    "Mars-Mars": "火火相位看做事的衝勁和節奏", "Sun-Mars": "日火相位看目標和執行力", "Mars-Sun": "日火相位看目標和執行力",
+    "Mercury-Mars": "水火相位看討論時會不會吵起來", "Mars-Mercury": "水火相位看討論時會不會吵起來", "Moon-Venus": "月金相位看溫柔和照顧", "Venus-Moon": "月金相位看溫柔和照顧",
+    "Moon-Mercury": "月水相位看說話能不能顧到感受", "Mercury-Moon": "月水相位看說話能不能顧到感受", "Sun-Mercury": "日水相位看想法能不能被理解", "Mercury-Sun": "日水相位看想法能不能被理解" };
   const keys = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Asc"];
   const asp = [];
   keys.forEach(p => keys.forEach(q => {
@@ -427,16 +483,17 @@ function compare(A, B, rel) {
     const d = Math.abs(norm(A.pl[p] - B.pl[q] + 180) - 180);
     for (const [ang, n, g, orb, k, mean] of ASP) {
       const o = Math.abs(d - ang);
-      if (o <= orb) { asp.push({ p, q, n, g, k, mean, orb: o, pm: PAIR_MEAN[`${p}-${q}`], ref: (p === "Moon" && A.moonAlt) || (q === "Moon" && B.moonAlt) }); break; }
+      if (o <= orb) { const key = `${p}-${q}`; asp.push({ p, q, n, g, k, mean, orb: o, pm: PAIR_MEAN[key], key: R.keyAsp.includes(key), ref: (p === "Moon" && A.moonAlt) || (q === "Moon" && B.moonAlt) }); break; }
     }
   }));
-  asp.sort((x, y) => (y.pm ? 1 : 0) - (x.pm ? 1 : 0) || x.orb - y.orb);
-  asp.slice(0, 4).forEach(x => push(x.k, "相位", `${nA}的${PL[x.p][0]}${x.n}${nB}的${PL[x.q][0]}`, `${x.pm ? x.pm + "。" : ""}${x.mean}。`, x.ref ? "月亮未定，僅供參考" : ""));
-  // --- 宮位疊圖 ---
+  asp.sort((x, y) => (y.key - x.key) || x.orb - y.orb);
+  asp.slice(0, 4).forEach(x => push(x.k, "相位", `${nA}的${PL[x.p][0]}${x.n}${nB}的${PL[x.q][0]}`, `${x.pm ? x.pm + "。" : ""}${x.mean}。`, x.ref ? "月亮未定，僅供參考" : "", x.key ? 3 : 1));
+  // --- 宮位疊圖：這種關係看重的宮位排前面 ---
   const overlay = [];
-  if (A.ang && B.ang) [[A, B], [B, A]].forEach(([X, Y]) => ["Sun", "Moon", "Venus", "Mars"].forEach(p => {
-    const h = houseOf(X.pl[p], Y.ang.cusps); overlay.push({ X, Y, p, h });
+  if (A.ang && B.ang) [[A, B], [B, A]].forEach(([X, Y]) => ["Sun", "Moon", "Mercury", "Venus", "Mars"].forEach(p => {
+    const h = houseOf(X.pl[p], Y.ang.cusps); overlay.push({ X, Y, p, h, key: R.houses[h] });
   }));
+  overlay.sort((a, b) => (b.key ? 1 : 0) - (a.key ? 1 : 0));
   return { F, asp, overlay };
 }
 
@@ -475,21 +532,24 @@ function fItem(f) {
 function render(A, B, rel) {
   const { F, overlay } = compare(A, B, rel);
   const col = (k) => {
-    const items = F.filter(f => f.k === k).slice(0, 5);
+    const items = F.filter(f => f.k === k).sort((a, b) => b.w - a.w || a.i - b.i).slice(0, 5);
     const [kn, kv] = KIND[k];
     const head = { sim: "你們相似的地方", comp: "你們互補的地方", fric: "容易摩擦的地方" }[k];
     return `<div class="col" style="--k:var(${kv});--k-soft:var(${kv}-soft)"><h3>${head}</h3>${items.length
-      ? `<ul>${items.map(f => `<li><small>${f.src}</small>${f.title}</li>`).join("")}</ul>` : `<p class="none">這一類沒有明顯的訊號。</p>`}</div>`;
+      ? `<ul>${items.map(f => `<li><small>${f.src}</small>${f.title}</li>`).join("")}</ul>` : `<p class="none">這一類沒有明顯的訊號。</p>`}
+      <p class="tip">${ROLE[rel].tips[k]}</p></div>`;
   };
   const wx = F.filter(f => ["五行", "八字", "生肖", "八宅"].includes(f.src));
   const xz = F.filter(f => ["星座", "相位"].includes(f.src));
   const missing = [A, B].filter(X => X.noTime).map(X => X.label);
-  const ov = overlay.length ? `<h3 class="sub-h">走進對方的哪一宮</h3><ul class="flist">${overlay.map(o => `<li style="--k:var(--muted);--k-soft:var(--paper)"><span class="kind">宮位</span><div><b>${o.X.label}的${PL[o.p][0]}落在${o.Y.label}的第 ${o.h} 宮</b><p>${o.X.label}容易影響${o.Y.label}的「${HOUSE_THEME[o.h - 1]}」。</p></div></li>`).join("")}</ul>`
+  const hs = Object.entries(ROLE[rel].houses).map(([h, n]) => `第 ${h} 宮（${n}）`).join("、");
+  const ov = overlay.length ? `<h3 class="sub-h">走進對方的哪一宮</h3><p class="hint">${rel}關係最看重${hs}，落在這些宮位的排在前面。</p><ul class="flist">${overlay.map(o => `<li style="--k:var(${o.key ? "--comp" : "--muted"});--k-soft:var(${o.key ? "--comp-soft" : "--paper"})"><span class="kind">${o.key ? "重點" : "宮位"}</span><div><b>${o.X.label}的${PL[o.p][0]}落在${o.Y.label}的第 ${o.h} 宮</b><p>${o.X.label}容易影響${o.Y.label}的「${HOUSE_THEME[o.h - 1]}」。</p></div></li>`).join("")}</ul>`
     : `<p class="note">兩個人都知道出生時間，才看得出彼此的行星落進對方的哪一宮。</p>`;
   $("out").innerHTML = `
     <section class="panel" aria-labelledby="sum-h">
-      <div class="pair-title"><span class="label" id="sum-h">${rel} · ${REL_WORD[rel]}</span></div>
+      <div class="pair-title"><span class="label" id="sum-h">${rel} · ${ROLE[rel].word}</span></div>
       <div class="pair-title"><b class="a">${esc(A.label)}</b><span aria-hidden="true">×</span><b class="b">${esc(B.label)}</b></div>
+      <p class="hint">${ROLE[rel].intro}</p>
       <div class="sum">${col("sim")}${col("comp")}${col("fric")}</div>
       ${missing.length ? `<p class="note">${missing.join("、")}沒有出生時間：不看時柱、上升和宮位${[A, B].some(X => X.moonAlt) ? "，月亮星座也可能有兩種，相關結果標為參考" : ""}。</p>` : ""}
     </section>
