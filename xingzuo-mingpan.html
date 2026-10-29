@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Symbols&display=swap">
 <style>
 /* 版面：時尚雜誌式單欄。刊頭大標 → 出生資料 → 三大星座橫排三聯 → 單色細線星盤 → 星位／宮位／相位分頁的詳細參數 */
-/* 配色：石灰白底、墨黑字、香檳金點睛；相位用霧藍、玫瑰、鼠尾草等低彩度色，固定淺色 */
+/* 配色：和首頁一致的近白底、炭黑字、香檳金點睛；相位用霧藍、玫瑰、鼠尾草等低彩度色，固定淺色 */
 :root {
-  --paper: #EEEDE9; --surface: #F8F7F4; --ink: #171717; --muted: #6E6B67; --rule: #D5D2CC; --hair: #E3E0DA;
+  --paper: #FAFAF8; --surface: #FFFFFF; --ink: #2B2B2B; --muted: #666663; --rule: #E2E2DE; --hair: #EDEDEA;
   --gold: #A3814F; --gold-soft: #EFE7DA;
   --dusk: #5F7896; --rose: #B5615A; --sage: #6F8F6C; --taupe: #8B827A;
   --fire: #B5615A; --earth: #6F8F6C; --air: #A3814F; --water: #5F7896;
@@ -166,7 +166,7 @@ footer { font-size: 12px; color: var(--muted); display: grid; gap: 6px; border-t
 @media (prefers-reduced-motion: reduce) { #wheel .asp { transition: none } }
 
 /* 網站導覽列：固定在頂端，左邊回首頁，右邊切換工具 */
-.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--rule);
+.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--rule);
   padding-top: env(safe-area-inset-top, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
 .sitebar .in { max-width: 880px; margin: 0 auto; height: 54px; display: flex; align-items: center; gap: 12px }
 .sitebar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; padding: 6px 12px 6px 8px; margin-left: -8px; border-radius: 999px }

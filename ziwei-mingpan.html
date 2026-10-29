@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
 /* 版面：上方輸入生辰，中間是傳統十二宮方盤（四邊十二宮、中央命盤資料），下方是點選宮位的說明 */
-/* 配色：淺灰綠底、墨色字、朱紅點睛，固定淺色，不隨系統切換深色 */
+/* 配色：和首頁一致的近白底、炭黑字、朱紅點睛，固定淺色，不隨系統切換深色 */
 :root {
-  --paper: #F1F3EF; --surface: #FFFFFF; --ink: #1B2220; --muted: #5B6661; --rule: #D4DAD5;
+  --paper: #FAFAF8; --surface: #FFFFFF; --ink: #2B2B2B; --muted: #666663; --rule: #E2E2DE;
   --accent: #2C6B5E; --accent-soft: #E1ECE8; --mark: #B0432D;
   --star-main: #A8362A; --star-good: #2C5888; --star-bad: #1B2220; --star-adj: #5B6661;
   --hua-lu: #3B7A4C; --hua-quan: #6A4A9C; --hua-ke: #2C5888; --hua-ji: #B0432D;
@@ -117,7 +117,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
 @media (max-width: 480px) { .form { grid-template-columns: 1fr } }
 
 /* 網站導覽列：固定在頂端，左邊回首頁，右邊切換工具 */
-.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--rule);
+.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--rule);
   padding-top: env(safe-area-inset-top, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
 .sitebar .in { max-width: 880px; margin: 0 auto; height: 54px; display: flex; align-items: center; gap: 12px }
 .sitebar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; padding: 6px 12px 6px 8px; margin-left: -8px; border-radius: 999px }
