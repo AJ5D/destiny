@@ -566,7 +566,7 @@ $("calcBtn").addEventListener("click", () => { isSample = false; run(); });
 $("remember").addEventListener("change", () => { if (!$("remember").checked) store("srhp", undefined); else if (!isSample) run(); });
 
 // ===== 啟動 =====
-const SAMPLE = { a: { d: "1990-05-17", t: "14:30", city: "台北", sex: "女" }, b: { d: "1988-11-03", t: "", noTime: true, city: "高雄", sex: "男" }, rel: "伴侶" };
+const SAMPLE = { a: { d: "1990-05-17", t: "14:30", city: "台北", sex: "女" }, b: { d: "1988-11-03", t: "08:15", noTime: false, city: "高雄", sex: "男" }, rel: "伴侶" };
 const saved = load("srhp", null), start = saved || SAMPLE;
 isSample = !saved;
 $("remember").checked = !!saved;
