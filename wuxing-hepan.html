@@ -29,8 +29,6 @@ p { margin: 0 }
 .sec-h h2 { font-size: 22px }
 
 header { display: grid; gap: 8px }
-.home { justify-self: start; font-size: 14px; color: var(--accent); text-decoration: none }
-.home:hover { text-decoration: underline }
 header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
 header p { color: var(--muted); max-width: 36em }
 
@@ -137,11 +135,36 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
   .arrow { transform: rotate(90deg); justify-self: center }
 }
 @media (prefers-reduced-motion: reduce) { .coin.spin { animation: none } }
+
+/* 網站導覽列：固定在頂端，左邊回首頁，右邊切換工具 */
+.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--rule);
+  padding-top: env(safe-area-inset-top, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.sitebar .in { max-width: 880px; margin: 0 auto; height: 54px; display: flex; align-items: center; gap: 12px }
+.sitebar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; padding: 6px 12px 6px 8px; margin-left: -8px; border-radius: 999px }
+.sitebar .brand:hover { background: var(--paper) }
+.sitebar .brand .ar { font-size: 18px; line-height: 1 }
+.sitebar .brand b { font-family: "Noto Serif TC", "Songti TC", serif; font-weight: 900; font-size: 18px; letter-spacing: .08em }
+.sitebar .brand b i { font-style: normal; color: #B0432D }
+.sitebar nav { margin-left: auto; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none }
+.sitebar nav a { padding: 6px 12px; font-size: 14px; color: var(--muted); text-decoration: none; border-radius: 999px; white-space: nowrap }
+.sitebar nav a:hover { color: var(--ink) }
+.sitebar nav a[aria-current="page"] { color: var(--surface); background: var(--ink) }
+.sitebar a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px }
+body { padding-top: calc(54px + 28px + env(safe-area-inset-top, 0px)) }
+@media (max-width: 480px) {
+  .sitebar .in { gap: 4px }
+  .sitebar .brand { padding-right: 8px }
+  .sitebar .brand b { font-size: 16px; letter-spacing: .04em }
+  .sitebar nav a { padding: 6px 8px; font-size: 13px }
+}
 </style>
 
+<div class="sitebar"><div class="in">
+  <a class="brand" href="./" aria-label="回首頁：掌上命珠"><span class="ar" aria-hidden="true">←</span><b>掌上命<i>珠</i></b></a>
+  <nav aria-label="工具"><a href="wuxing-wengua.html">問卦</a><a href="wuxing-hepan.html" aria-current="page">合盤</a><a href="ziwei-mingpan.html">紫微</a><a href="xingzuo-mingpan.html">星座</a></nav>
+</div></div>
 <div class="wrap">
   <header>
-    <a class="home" href="./">← 掌上命珠</a>
     <span class="label">八字底色 × 易經問事 × 陰陽五行</span>
     <h1>五行問卦合盤</h1>
     <p>生辰看的是你本來的底色，一輩子不會變。<br>卦看的是這件事當下的天氣，每次問都不同。<br>把兩者放在一起，看這件事對你是補，還是耗。</p>

@@ -6,20 +6,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500&display=swap">
 <style>
-/* 版面：大字、單欄、留白。上方是名字，下方三個工具各佔一列，用細線分隔 */
+/* 版面：大字刊頭，下方是一條從「出生」往下走的主線。認識自己的命盤是主線上的節點，
+   問一件事的工具從主線分岔出去成為支線；合盤分出去之後又接回主線 */
 /* 配色：淺灰綠底、墨色字、朱紅點睛，固定淺色，不隨系統切換深色 */
 :root {
   --paper: #F1F3EF; --ink: #1B2220; --muted: #5B6661; --rule: #D4DAD5; --accent: #2C6B5E; --mark: #B0432D;
   --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  /* 主線幾何：--g 左側留給線的寬度、--x 主線位置、--F 工具名稱字級、--P 每一列上下留白 */
+  --g: 96px; --x: 22px; --F: clamp(34px, 6.4vw, 58px); --P: clamp(26px, 4vw, 40px);
   color-scheme: light;
 }
 
 * { box-sizing: border-box }
+[hidden] { display: none !important }
 html { padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px) }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.7;
-  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-block: clamp(48px, 12vh, 120px) 64px }
-.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: clamp(56px, 10vw, 96px) }
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-block: clamp(48px, 10vh, 104px) 64px }
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: clamp(48px, 8vw, 80px) }
 p { margin: 0 }
 
 header { display: grid; gap: 20px }
@@ -27,48 +31,96 @@ h1 { margin: 0; font-family: var(--f-display); font-weight: 900; font-size: clam
 h1 .zhu { color: var(--mark) }
 .lede { font-size: clamp(18px, 2.6vw, 22px); color: var(--muted); max-width: 26em }
 
-nav ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink) }
-nav li { border-bottom: 1px solid var(--rule) }
-nav a { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 24px; padding: clamp(20px, 4vw, 32px) 0; color: inherit; text-decoration: none }
-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px }
-nav h2 { margin: 0; font-family: var(--f-display); font-weight: 900; font-size: clamp(32px, 7vw, 56px); line-height: 1.15; letter-spacing: .03em; transition: color .2s }
-nav p { grid-column: 1; color: var(--muted); min-width: 0 }
-nav .go { grid-column: 2; grid-row: 1 / span 2; font-size: clamp(24px, 5vw, 36px); color: var(--muted); transition: transform .2s, color .2s }
-nav a:hover h2, nav a:focus-visible h2 { color: var(--accent) }
-nav a:hover .go, nav a:focus-visible .go { color: var(--accent); transform: translateX(6px) }
+/* 主線 */
+.life { list-style: none; margin: 0; padding: 0; position: relative }
+.life::before { content: ""; position: absolute; left: var(--x); top: 14px; bottom: 30px; width: 2px; background: var(--ink) }
+.life > li { position: relative; padding-left: var(--g) }
+.cap { display: flex; align-items: center; gap: 12px; font-size: 13px; letter-spacing: .2em; color: var(--muted); padding-block: 4px }
+.cap::before { content: ""; position: absolute; left: calc(var(--x) - 6px); top: calc(50% - 7px); width: 14px; height: 14px; border-radius: 50%; background: var(--ink) }
+.cap.end { padding-top: 8px }
+.cap.end::before { background: var(--paper); border: 2px solid var(--ink) }
+.cap b { font-family: var(--f-display); font-weight: 900; font-size: 18px; letter-spacing: .12em; color: var(--ink) }
 
-footer { font-size: 14px; color: var(--muted) }
-@media (prefers-reduced-motion: reduce) { nav h2, nav .go { transition: none } nav a:hover .go { transform: none } }
+.row a { display: block; padding-block: var(--P); color: inherit; text-decoration: none }
+.row a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px }
+.txt { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 20px; --hm: calc(var(--F) * .575) }
+.txt h2 { margin: 0; font-family: var(--f-display); font-weight: 900; font-size: var(--F); line-height: 1.15; letter-spacing: .03em; transition: color .2s }
+.txt .tag { display: block; font-family: var(--f-body); font-size: 13px; letter-spacing: .2em; color: var(--c, var(--muted)); margin-top: 10px }
+.txt p { grid-column: 1; color: var(--muted); max-width: 30em; margin-top: 4px }
+.txt .go { grid-column: 2; grid-row: 1; align-self: center; font-size: clamp(24px, 4vw, 34px); color: var(--muted); transition: transform .2s, color .2s }
+.row a:hover h2, .row a:focus-visible h2 { color: var(--c, var(--accent)) }
+.row a:hover .go, .row a:focus-visible .go { color: var(--c, var(--accent)); transform: translateX(6px) }
+
+/* 主線上的節點：圓點落在主線上，一小段橫線連到文字 */
+.main .txt::before { content: ""; position: absolute; left: calc(var(--x) - var(--g) - 7px); top: calc(var(--hm) - 8px); width: 18px; height: 18px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 5px var(--paper) }
+.main .txt::after { content: ""; position: absolute; left: calc(var(--x) - var(--g) + 16px); right: calc(100% + 16px); top: var(--hm); height: 0; border-top: 2px solid var(--ink) }
+
+/* 支線：從主線分岔，彎出去接到工具名稱前的空心圓 */
+.branch { --c: var(--mark) }
+.branch .out, .branch .back { position: absolute; left: calc(var(--x) - var(--g)); width: calc(var(--g) - var(--x) - 22px); border: 0 solid var(--c); pointer-events: none }
+.branch .out, .branch .back { --r: 40px; height: var(--r) }
+.branch .out { top: calc(var(--hm) - var(--r) + .75px); border-left-width: 2px; border-bottom-width: 2px; border-bottom-left-radius: var(--r) }
+.branch .back { top: calc(var(--hm) - .75px); border-left-width: 2px; border-top-width: 2px; border-top-left-radius: var(--r) }
+.branch .txt::before { content: ""; position: absolute; left: -22px; top: calc(var(--hm) - 7px); width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 2px solid var(--c) }
+.merge { --c: var(--accent) }
+
+footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 20px }
+
+@media (max-width: 560px) {
+  :root { --g: 62px; --x: 14px; --F: clamp(30px, 9vw, 40px); --P: 22px }
+  .branch .out, .branch .back { width: calc(var(--g) - var(--x) - 18px) }
+  .branch .out, .branch .back { --r: 26px }
+  .branch .txt::before { left: -18px }
+  .txt { column-gap: 8px }
+}
+@media (prefers-reduced-motion: reduce) { .txt h2, .txt .go { transition: none } .row a:hover .go { transform: none } }
 </style>
 
 <div class="wrap">
   <header>
     <h1>掌上命<span class="zhu">珠</span></h1>
-    <p class="lede">命運在你自己的掌心。<br>這裡的工具不替你算命，只幫你換個角度看自己。</p>
+    <p class="lede">生命有一條主線，是你本來的樣子；<br>也有許多支線，是一路上遇到的人和事。<br>命運在你自己的掌心。</p>
   </header>
 
   <nav aria-label="工具">
-    <ul>
-      <li><a href="wuxing-wengua.html">
-        <h2>五行問卦</h2>
-        <p>心裡有一件事，擲六次硬幣起一卦，看這件事的天氣。</p>
-        <span class="go" aria-hidden="true">→</span>
+    <ul class="life">
+      <li class="cap"><b>出生</b>主線從這裡開始</li>
+
+      <li class="row main"><a href="ziwei-mingpan.html">
+        <div class="txt">
+          <h2>紫微命盤</h2>
+          <p>排出十二宮命盤，看看自己的個性、關係和人生的節奏。<span class="tag">主線 · 認識自己</span></p>
+          <span class="go" aria-hidden="true">→</span>
+        </div>
       </a></li>
-      <li><a href="wuxing-hepan.html">
-        <h2>五行合盤</h2>
-        <p>用生辰看你的底色，再配上一卦，看這件事對你是補，還是耗。</p>
-        <span class="go" aria-hidden="true">→</span>
+
+      <li class="row branch"><a href="wuxing-wengua.html">
+        <div class="txt">
+          <span class="out" aria-hidden="true"></span>
+          <h2>五行問卦</h2>
+          <p>心裡有一件事，擲六次硬幣起一卦，看這件事的天氣。<span class="tag">支線 · 問一件事</span></p>
+          <span class="go" aria-hidden="true">→</span>
+        </div>
       </a></li>
-      <li><a href="ziwei-mingpan.html">
-        <h2>紫微命盤</h2>
-        <p>排出十二宮命盤，看看自己的個性、關係和人生的節奏。</p>
-        <span class="go" aria-hidden="true">→</span>
+
+      <li class="row main"><a href="xingzuo-mingpan.html">
+        <div class="txt">
+          <h2>星座命盤</h2>
+          <p>輸入出生時間和地點，看太陽、月亮、上升和十大行星落在哪裡。<span class="tag">主線 · 認識自己</span></p>
+          <span class="go" aria-hidden="true">→</span>
+        </div>
       </a></li>
-      <li><a href="xingzuo-mingpan.html">
-        <h2>星座命盤</h2>
-        <p>輸入出生時間和地點，看太陽、月亮、上升和十大行星落在哪裡。</p>
-        <span class="go" aria-hidden="true">→</span>
+
+      <li class="row branch merge"><a href="wuxing-hepan.html">
+        <div class="txt">
+          <span class="out" aria-hidden="true"></span><span class="back" aria-hidden="true"></span>
+          <h2>五行合盤</h2>
+          <p>用生辰看你的底色，再配上一卦，看這件事對你是補，還是耗。<span class="tag">支線接回主線 · 合看</span></p>
+          <span class="go" aria-hidden="true">→</span>
+        </div>
       </a></li>
+
+      <li class="cap end"><b>現在</b>主線繼續往下走</li>
     </ul>
   </nav>
 
