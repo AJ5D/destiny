@@ -6,17 +6,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
-/* 版面：單欄工具。上方問題與擲卦，下方卦象、五行關係、反思問題，最後是自己的問卦紀錄 */
+/* 版面：單欄。一、生辰（你的底色）二、問事起卦（這件事的天氣）三、合看（陰陽 + 五行喜忌）四、紀錄 */
 /* 配色：和首頁一致的近白底、炭黑字、朱紅點睛，固定淺色，不隨系統切換深色 */
 :root {
-  --paper: #FAFAF8;
-  --surface: #FFFFFF;
-  --ink: #2B2B2B;
-  --muted: #666663;
-  --rule: #E2E2DE;
-  --accent: #2C6B5E;
-  --accent-soft: #E1ECE8;
-  --mark: #B0432D;
+  --paper: #FAFAF8; --surface: #FFFFFF; --ink: #2B2B2B; --muted: #666663; --rule: #E2E2DE;
+  --accent: #2C6B5E; --accent-soft: #E1ECE8; --mark: #B0432D;
   --wood: #3B7A4C; --fire: #B5432D; --earth: #9A7426; --metal: #6F757E; --water: #2C5888;
   --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
@@ -30,18 +24,52 @@ body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(
 .wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 28px }
 h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.3 }
 p { margin: 0 }
-.label { font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 500 }
+.label { font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 500; font-family: var(--f-body) }
+.sec-h { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between }
+.sec-h h2 { font-size: 22px }
 
 header { display: grid; gap: 8px }
 header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
-header p { color: var(--muted); max-width: 34em }
+header p { color: var(--muted); max-width: 36em }
 
 .panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 16px; min-width: 0 }
+.sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
 
-label[for="q"] { display: block }
-#q { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink) }
-#q:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+input[type="text"], input[type="date"], select, textarea {
+  font: inherit; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); width: 100% }
+input:focus-visible, button:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+select:disabled { opacity: .5 }
+.time24 { display: flex; align-items: center; gap: 6px }
+.time24 select { flex: 1; min-width: 0 }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.form-row > div { display: grid; gap: 4px; min-width: 0 }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted) }
+.checks label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
 
+.btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center }
+button { font: inherit; font-weight: 500; border-radius: 4px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
+button.ghost { background: transparent; color: var(--accent) }
+button:disabled { opacity: .4; cursor: default }
+.err { color: var(--mark); font-size: 14px }
+
+/* 四柱 */
+.pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center }
+.pillar { display: grid; gap: 4px; padding: 10px 4px; border-radius: 4px; min-width: 0 }
+.pillar.day { background: var(--accent-soft) }
+.pillar .gz { font-family: var(--f-display); font-weight: 900; font-size: clamp(22px, 6vw, 30px); line-height: 1.2; display: grid }
+.pillar .gz span { color: var(--el) }
+.pillar small { font-size: 12px; color: var(--muted) }
+.pillar.unknown .gz { color: var(--rule) }
+
+.bars { display: grid; gap: 6px }
+.bar { display: grid; grid-template-columns: 2em 1fr 3.2em; gap: 10px; align-items: center; font-size: 14px }
+.bar .track { height: 10px; background: var(--paper); border-radius: 5px; overflow: hidden }
+.bar .fill { height: 100%; background: var(--el); border-radius: 5px }
+.bar .v { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right }
+.dm { border-left: 3px solid var(--el); padding: 2px 0 2px 14px; display: grid; gap: 4px }
+.dm h3 { font-size: 20px }
+
+/* 起卦 */
 .toss { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center }
 .coins { display: flex; gap: 10px }
 .coin { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center;
@@ -52,24 +80,17 @@ label[for="q"] { display: block }
 .toss-info { font-size: 14px; color: var(--muted); min-width: 0 }
 .toss-info strong { color: var(--ink) }
 
-.btns { display: flex; flex-wrap: wrap; gap: 10px }
-button { font: inherit; font-weight: 500; border-radius: 4px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
-button.ghost { background: transparent; color: var(--accent) }
-button:disabled { opacity: .4; cursor: default }
-
-.reading { display: grid; gap: 20px }
-.sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
 .hexes { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center }
 .hex { display: grid; gap: 10px; justify-items: center; text-align: center; min-width: 0 }
 .hex .num { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums }
-.hex h2 { font-size: clamp(22px, 5vw, 28px) }
+.hex h3 { font-size: clamp(22px, 5vw, 28px) }
 .hex .theme { font-size: 14px; color: var(--muted) }
 .arrow { font-size: 22px; color: var(--muted) }
 .lines { display: flex; flex-direction: column-reverse; gap: 7px; width: 112px }
 .ln { position: relative; height: 12px; display: flex; gap: 14px }
 .ln span { flex: 1; background: var(--ink); border-radius: 2px }
 .ln.empty span { background: var(--rule) }
-.ln .mv { position: absolute; right: -22px; top: -5px; font-size: 14px; color: var(--mark); font-weight: 700 }
+.ln .mv { position: absolute; right: -22px; top: -5px; font-size: 14px; color: var(--mark); font-weight: 700; font-style: normal }
 .hex.zhi .ln span { background: var(--muted) }
 .hex.none { opacity: .45 }
 
@@ -78,17 +99,25 @@ button:disabled { opacity: .4; cursor: default }
 .tri .sym { font-size: 26px; line-height: 1; color: var(--el) }
 .tri b { font-family: var(--f-display); font-size: 18px }
 .tri small { color: var(--muted); font-size: 13px }
-
 .rel { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; display: grid; gap: 6px }
 .rel h3 { font-size: 20px }
 .rel .flow { font-size: 14px; color: var(--muted) }
-.qs { margin: 0; padding-left: 1.3em; display: grid; gap: 8px }
 .change { font-size: 15px; color: var(--muted) }
 
-.note-row { display: grid; gap: 8px }
-#note { width: 100%; font: inherit; min-height: 84px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); resize: vertical }
-.saved-msg { font-size: 14px; color: var(--accent) }
+/* 合看 */
+.merge { border: 2px solid var(--accent) }
+.axis { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
+.axis > div { display: grid; gap: 6px; align-content: start; min-width: 0 }
+.axis h3 { font-size: 19px }
+.pair { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-weight: 900; font-size: 20px }
+.pair .chip { font-family: var(--f-body); font-weight: 500; font-size: 13px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--rule) }
+.pair .chip.good { border-color: var(--wood); color: var(--wood) }
+.pair .chip.warn { border-color: var(--mark); color: var(--mark) }
+.pair .chip.even { color: var(--muted) }
+.qs { margin: 0; padding-left: 1.3em; display: grid; gap: 8px }
 
+#note { min-height: 84px; resize: vertical }
+.saved-msg { font-size: 14px; color: var(--accent) }
 .journal ul { list-style: none; margin: 0; padding: 0; display: grid }
 .journal li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--rule) }
 .journal li:first-child { border-top: 0 }
@@ -100,9 +129,9 @@ button:disabled { opacity: .4; cursor: default }
 
 footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
 
-@media (max-width: 520px) {
-  .toss { grid-template-columns: 1fr }
-  .hexes { grid-template-columns: 1fr; }
+@media (max-width: 560px) {
+  .toss, .axis, .form-row { grid-template-columns: 1fr }
+  .hexes { grid-template-columns: 1fr }
   .arrow { transform: rotate(90deg); justify-self: center }
 }
 @media (prefers-reduced-motion: reduce) { .coin.spin { animation: none } }
@@ -137,19 +166,36 @@ body { padding-top: calc(54px + 28px + env(safe-area-inset-top, 0px)) }
 
 <div class="sitebar"><div class="in">
   <a class="brand" href="./" aria-label="回首頁：掌上命珠"><span class="ar" aria-hidden="true">←</span><b>掌上命<i>珠</i></b></a>
-  <nav aria-label="工具"><a href="ziwei-mingpan.html">紫微</a><a href="xingzuo-mingpan.html">星座</a><a href="wuxing-wengua.html" aria-current="page">問卦</a><a href="wuxing-hepan.html">合盤</a></nav>
+  <nav aria-label="工具"><a href="ziwei-mingpan.html">紫微</a><a href="xingzuo-mingpan.html">星座</a><a href="wuxing-wengua.html" aria-current="page">問卦</a><a href="shuangren-hepan.html">合盤</a></nav>
 </div></div>
 <canvas class="threads-bg" aria-hidden="true"></canvas>
 <div class="wrap">
   <header>
-    <span class="label">易經六十四卦 · 五行生剋</span>
+    <span class="label">八字底色 × 易經問事 × 陰陽五行</span>
     <h1>五行問卦</h1>
-    <p>帶著一個問題來，擲六次硬幣得出一卦。卦不替你做決定，它給你一個換角度想的起點。</p>
+    <p>生辰看的是你本來的底色，一輩子不會變。<br>卦看的是這件事當下的天氣，每次問都不同。<br>把兩者放在一起，看這件事對你是補，還是耗。</p>
   </header>
 
-  <section class="panel" aria-labelledby="ask-h">
-    <h2 id="ask-h" class="label" style="font-family:var(--f-body)">一、寫下你的問題</h2>
-    <label for="q" class="label" hidden>你的問題</label>
+  <!-- 一、生辰 -->
+  <section class="panel" aria-labelledby="b-h">
+    <div class="sec-h"><h2 id="b-h">一、你的底色</h2><span id="bSample" class="sample-tag">範例生辰</span></div>
+    <div class="form-row">
+      <div><label for="bd" class="label">出生日期（國曆）</label><input id="bd" type="date" min="1901-01-01" max="2099-12-31"></div>
+      <div><label for="btH" class="label">出生時間（24 小時制）</label>
+        <div class="time24"><select id="btH" aria-label="時"></select><span aria-hidden="true">:</span><select id="btM" aria-label="分"></select></div></div>
+    </div>
+    <div class="checks">
+      <label><input id="noTime" type="checkbox"> 不知道出生時間</label>
+      <label><input id="remember" type="checkbox"> 記住在這台裝置</label>
+    </div>
+    <div class="btns"><button id="calcBtn">排出四柱</button><span class="err" id="bErr" aria-live="polite"></span></div>
+    <div id="chart" aria-live="polite"></div>
+  </section>
+
+  <!-- 二、問事 -->
+  <section class="panel" aria-labelledby="a-h">
+    <div class="sec-h"><h2 id="a-h">二、這件事的天氣</h2><span id="hSample" class="sample-tag">範例卦</span></div>
+    <label for="q" class="label">你想問的事</label>
     <input id="q" type="text" maxlength="80" placeholder="例如：我該不該接下這個新專案？">
     <div class="toss">
       <div class="coins" aria-hidden="true">
@@ -162,46 +208,119 @@ body { padding-top: calc(54px + 28px + env(safe-area-inset-top, 0px)) }
       <button id="allBtn" class="ghost">一次擲完</button>
       <button id="resetBtn" class="ghost" hidden>重新起卦</button>
     </div>
+    <div id="hexOut" aria-live="polite"></div>
   </section>
 
-  <section class="panel reading" id="reading" aria-live="polite"></section>
+  <!-- 三、合看 -->
+  <section class="panel merge" id="merge" aria-live="polite"></section>
 
   <section class="panel journal" aria-labelledby="j-h">
-    <h2 id="j-h" class="label" style="font-family:var(--f-body)">我的問卦紀錄</h2>
+    <h2 id="j-h" class="label">我的問卦紀錄</h2>
     <ul id="jList"></ul>
-    <p class="empty-j" id="jEmpty">還沒有紀錄。起完一卦後按「存進紀錄」，過一陣子回來看，會比當下看得更清楚。紀錄只存在這台裝置的瀏覽器裡。</p>
+    <p class="empty-j" id="jEmpty">還沒有紀錄。合看完按「存進紀錄」，過一陣子回來看。紀錄只存在這台裝置的瀏覽器裡，不含你的生辰。</p>
   </section>
 
   <footer>
-    <p>八卦配五行依後天八卦：乾、兌屬金，離屬火，震、巽屬木，坎屬水，艮、坤屬土。下卦視為你自己（內），上卦視為你所處的情境（外）。</p>
-    <p>這是一個反思工具，不做預測，也不取代專業意見。</p>
+    <p>四柱以台灣時間（UTC+8）計算，年柱以立春為界，月柱以節氣為界，23:00 之後算隔日子時。未校正真太陽時，也未處理早年的日光節約時間。出生時間落在節氣交界前後半小時內，月柱可能有誤差。</p>
+    <p>五行強弱是簡化判斷：天干與地支本氣各計 1，月支計 2，看生扶日主的力量是否過半。正式命理還會看藏干、合沖、調候，結果可能不同。</p>
+    <p>八卦配五行依後天八卦。這是一個反思工具，不做預測，也不取代專業意見。</p>
   </footer>
 </div>
 
 <script>
-// 八卦：bits 由下往上
+// ===== 共用 =====
+const $ = id => document.getElementById(id);
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+const EL_VAR = { 木: "--wood", 火: "--fire", 土: "--earth", 金: "--metal", 水: "--water" };
+const ELS = ["木", "火", "土", "金", "水"];
+const GEN = { 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" };
+const KE = { 木: "土", 土: "水", 水: "火", 火: "金", 金: "木" };
+function store(k, v) { try { v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function load(k, d) { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : d; } catch (e) { return d; } }
+
+// ===== 八字 =====
+const STEMS = "甲乙丙丁戊己庚辛壬癸";
+const BRANCHES = "子丑寅卯辰巳午未申酉戌亥";
+const STEM_EL = ["木", "木", "火", "火", "土", "土", "金", "金", "水", "水"];
+const BR_EL = ["水", "土", "木", "木", "土", "火", "火", "土", "金", "金", "土", "水"];
+
+function sunLongitude(jd) {
+  const T = (jd - 2451545.0) / 36525, r = Math.PI / 180;
+  const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+  const M = (357.52911 + 35999.05029 * T - 0.0001537 * T * T) * r;
+  const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M) + (0.019993 - 0.000101 * T) * Math.sin(2 * M) + 0.000289 * Math.sin(3 * M);
+  const om = (125.04 - 1934.136 * T) * r;
+  const lam = L0 + C - 0.00569 - 0.00478 * Math.sin(om);
+  return ((lam % 360) + 360) % 360;
+}
+// y, m, d 為國曆；hh, mm 為台灣時間，可為 null
+function bazi(y, m, d, hh, mm) {
+  const hasTime = hh !== null;
+  const h = hasTime ? hh : 12, mi = hasTime ? mm : 0;
+  const ms = Date.UTC(y, m - 1, d, h - 8, mi);
+  const jd = ms / 86400000 + 2440587.5;
+  const lam = sunLongitude(jd);
+  const mIdx = Math.floor((((lam - 315) % 360 + 360) % 360) / 30); // 0 = 寅月
+  let yy = y;
+  if (m <= 2 && mIdx >= 10) yy = y - 1; // 立春前算前一年
+  const yS = ((yy - 4) % 10 + 10) % 10, yB = ((yy - 4) % 12 + 12) % 12;
+  const mB = (mIdx + 2) % 12, mS = ((yS % 5) * 2 + 2 + mIdx) % 10;
+  // 日柱：23:00 後算隔日
+  const dayMs = Date.UTC(y, m - 1, d) + (hasTime && hh >= 23 ? 86400000 : 0);
+  const jdn = Math.round(dayMs / 86400000 + 2440587.5 + 0.5);
+  const dIdx = ((jdn + 49) % 60 + 60) % 60;
+  const dS = dIdx % 10, dB = dIdx % 12;
+  let hS = null, hB = null;
+  if (hasTime) { hB = Math.floor((hh + 1) / 2) % 12; hS = ((dS % 5) * 2 + hB) % 10; }
+  return { year: [yS, yB], month: [mS, mB], day: [dS, dB], hour: hasTime ? [hS, hB] : null, lam };
+}
+function analyze(bz) {
+  const cnt = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+  const add = (p, wB) => { cnt[STEM_EL[p[0]]] += 1; cnt[BR_EL[p[1]]] += wB; };
+  add(bz.year, 1); add(bz.month, 2); add(bz.day, 1); if (bz.hour) add(bz.hour, 1);
+  const dm = STEM_EL[bz.day[0]];
+  const mother = Object.keys(GEN).find(k => GEN[k] === dm);
+  const total = Object.values(cnt).reduce((a, b) => a + b, 0);
+  const support = cnt[dm] + cnt[mother];
+  const ratio = support / total;
+  const strength = ratio >= 0.56 ? "偏強" : ratio <= 0.44 ? "偏弱" : "中和";
+  return { cnt, total, dm, dmYang: bz.day[0] % 2 === 0, mother, ratio, strength };
+}
+// 情境五行 s 對日主 dm 的十神類別
+function tenGod(dm, s) {
+  if (s === dm) return { k: "same", n: "比劫", m: "同類的力量：同儕、合作或競爭" };
+  if (GEN[s] === dm) return { k: "gen", n: "印", m: "生你的力量：支援、學習、被照顧" };
+  if (GEN[dm] === s) return { k: "out", n: "食傷", m: "你生出去的力量：表達、創作、付出" };
+  if (KE[dm] === s) return { k: "wealth", n: "財", m: "你能掌握的力量：資源、收穫、經營" };
+  return { k: "officer", n: "官殺", m: "約束你的力量：規範、責任、壓力" };
+}
+function fit(strength, k) {
+  const helps = k === "same" || k === "gen";
+  if (strength === "中和") return { chip: "even", t: "可補可耗", d: "你的五行比較平衡，這件事會往哪邊走，主要看你怎麼使用它。" };
+  if (strength === "偏弱") return helps
+    ? { chip: "good", t: "補你", d: "你的底色偏弱，這件事的氣候正在補你，是可以借力的局面。" }
+    : { chip: "warn", t: "耗你", d: "你的底色偏弱，這件事會消耗你。不是不能做，而是要先盤點自己的體力和資源。" };
+  return helps
+    ? { chip: "warn", t: "加滿", d: "你本身已經很滿，這件事又往同一個方向加力。留意固執，或是用力過度。" }
+    : { chip: "good", t: "給你出口", d: "你本身力量足，這件事正好給這股力量一個出口，適合放手去做。" };
+}
+
+// ===== 易經 =====
 const TRI = {
-  乾: { bits: "111", sym: "☰", img: "天", el: "金" },
-  兌: { bits: "110", sym: "☱", img: "澤", el: "金" },
-  離: { bits: "101", sym: "☲", img: "火", el: "火" },
-  震: { bits: "100", sym: "☳", img: "雷", el: "木" },
-  巽: { bits: "011", sym: "☴", img: "風", el: "木" },
-  坎: { bits: "010", sym: "☵", img: "水", el: "水" },
-  艮: { bits: "001", sym: "☶", img: "山", el: "土" },
-  坤: { bits: "000", sym: "☷", img: "地", el: "土" }
+  乾: { bits: "111", sym: "☰", img: "天", el: "金", yy: "陽" },
+  兌: { bits: "110", sym: "☱", img: "澤", el: "金", yy: "陰" },
+  離: { bits: "101", sym: "☲", img: "火", el: "火", yy: "陰" },
+  震: { bits: "100", sym: "☳", img: "雷", el: "木", yy: "陽" },
+  巽: { bits: "011", sym: "☴", img: "風", el: "木", yy: "陰" },
+  坎: { bits: "010", sym: "☵", img: "水", el: "水", yy: "陽" },
+  艮: { bits: "001", sym: "☶", img: "山", el: "土", yy: "陽" },
+  坤: { bits: "000", sym: "☷", img: "地", el: "土", yy: "陰" }
 };
 const BY_BITS = Object.fromEntries(Object.entries(TRI).map(([k, v]) => [v.bits, k]));
-// 文王卦序：列為下卦、欄為上卦，順序 乾 震 坎 艮 坤 巽 離 兌
 const ORDER = ["乾", "震", "坎", "艮", "坤", "巽", "離", "兌"];
 const KW = [
-  [1, 34, 5, 26, 11, 9, 14, 43],
-  [25, 51, 3, 27, 24, 42, 21, 17],
-  [6, 40, 29, 4, 7, 59, 64, 47],
-  [33, 62, 39, 52, 15, 53, 56, 31],
-  [12, 16, 8, 23, 2, 20, 35, 45],
-  [44, 32, 48, 18, 46, 57, 50, 28],
-  [13, 55, 63, 22, 36, 37, 30, 49],
-  [10, 54, 60, 41, 19, 61, 38, 58]
+  [1, 34, 5, 26, 11, 9, 14, 43], [25, 51, 3, 27, 24, 42, 21, 17], [6, 40, 29, 4, 7, 59, 64, 47], [33, 62, 39, 52, 15, 53, 56, 31],
+  [12, 16, 8, 23, 2, 20, 35, 45], [44, 32, 48, 18, 46, 57, 50, 28], [13, 55, 63, 22, 36, 37, 30, 49], [10, 54, 60, 41, 19, 61, 38, 58]
 ];
 const HEX = [null,
   ["乾", "自強不息，主動開創"], ["坤", "厚德載物，順勢承接"], ["屯", "萬事起頭難，先扎根"], ["蒙", "承認還不懂，願意學"],
@@ -221,23 +340,13 @@ const HEX = [null,
   ["巽", "柔和滲透"], ["兌", "喜悅與交流"], ["渙", "化開、渙散"], ["節", "節制與界線"],
   ["中孚", "內在的誠信"], ["小過", "小事可為，大事宜緩"], ["既濟", "已經完成，守住"], ["未濟", "還沒完成，仍在路上"]
 ];
-const EL_VAR = { 木: "--wood", 火: "--fire", 土: "--earth", 金: "--metal", 水: "--water" };
-const GEN = { 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" };
-const KE = { 木: "土", 土: "水", 水: "火", 火: "金", 金: "木" };
-
 const REL = {
-  same: { t: "比和：內外同氣", d: "你和情境的節奏一致，阻力小，但也容易一路照舊走下去。",
-    q: ["如果一切照現在的方式繼續，三個月後你會滿意嗎？", "有什麼事因為太順，所以一直沒被你注意到？"] },
-  outGen: { t: "外生內：情境在支持你", d: "外在條件正在滋養你。這時候要問的是你願不願意接住。",
-    q: ["身邊有哪些人或資源，是你還沒開口請求的？", "你是否習慣自己扛，而錯過了別人伸出的手？"] },
-  inGen: { t: "內生外：你在付出", d: "你的力氣正流向外面，在滋養這個情境。付出是好事，前提是你知道自己為什麼付出。",
-    q: ["你投入的力氣，換回了你真正在意的東西嗎？", "哪一部分的付出，可以先停下來看看？"] },
-  inKe: { t: "內剋外：你能推動局面", d: "你有能力影響情境，但需要用力，也會有摩擦。",
-    q: ["這件事裡，哪一步是你可以主動推的？", "除了用力推，有沒有更省力的做法？"] },
-  outKe: { t: "外剋內：情境在壓你", d: "外在條件對你形成壓力。先分清楚哪些壓力是必須承受的，哪些不是。",
-    q: ["壓力主要從哪裡來？哪一部分你其實可以不接？", "如果先把自己顧好，下一步會是什麼？"] }
+  same: { t: "比和：內外同氣", d: "你和情境的節奏一致，阻力小，但也容易一路照舊走下去。" },
+  outGen: { t: "外生內：情境在支持你", d: "外在條件正在滋養你。這時候要問的是你願不願意接住。" },
+  inGen: { t: "內生外：你在付出", d: "你的力氣正流向外面，在滋養這個情境。前提是你知道自己為什麼付出。" },
+  inKe: { t: "內剋外：你能推動局面", d: "你有能力影響情境，但需要用力，也會有摩擦。" },
+  outKe: { t: "外剋內：情境在壓你", d: "外在條件對你形成壓力。先分清楚哪些壓力是必須承受的，哪些不是。" }
 };
-
 function relation(inner, outer) {
   if (inner === outer) return "same";
   if (GEN[outer] === inner) return "outGen";
@@ -246,211 +355,263 @@ function relation(inner, outer) {
   return "outKe";
 }
 function flowText(inner, outer, key) {
-  if (key === "same") return `下卦${inner} · 上卦${outer}`;
-  if (key === "outGen") return `上卦${outer} 生 下卦${inner}`;
-  if (key === "inGen") return `下卦${inner} 生 上卦${outer}`;
-  if (key === "inKe") return `下卦${inner} 剋 上卦${outer}`;
-  return `上卦${outer} 剋 下卦${inner}`;
+  return { same: `下卦${inner} · 上卦${outer}`, outGen: `上卦${outer} 生 下卦${inner}`, inGen: `下卦${inner} 生 上卦${outer}`,
+    inKe: `下卦${inner} 剋 上卦${outer}`, outKe: `上卦${outer} 剋 下卦${inner}` }[key];
 }
 function hexFromBits(bits) {
   const lower = BY_BITS[bits.slice(0, 3).join("")], upper = BY_BITS[bits.slice(3).join("")];
   const n = KW[ORDER.indexOf(lower)][ORDER.indexOf(upper)];
   const [name, theme] = HEX[n];
   const full = lower === upper ? `${name}為${TRI[lower].img}` : `${TRI[upper].img}${TRI[lower].img}${name}`;
-  return { n, name, full, theme, lower, upper, bits };
+  return { n, name, full, theme, lower, upper, bits, yangCount: bits.filter(b => b).length };
 }
 function linesHTML(vals, bits, showMoving) {
   let h = "";
   for (let i = 0; i < 6; i++) {
     if (bits[i] === undefined) { h += `<div class="ln empty"><span></span></div>`; continue; }
-    const yang = bits[i] === 1;
     const mv = showMoving && (vals[i] === 6 || vals[i] === 9) ? `<i class="mv" title="變爻">${vals[i] === 9 ? "○" : "×"}</i>` : "";
-    h += `<div class="ln">${yang ? "<span></span>" : "<span></span><span></span>"}${mv}</div>`;
+    h += `<div class="ln">${bits[i] === 1 ? "<span></span>" : "<span></span><span></span>"}${mv}</div>`;
   }
   return `<div class="lines" aria-hidden="true">${h}</div>`;
 }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
-let vals = [];
-let sample = true;
+// ===== 陰陽合看 =====
+function yinYang(dmYang, hex) {
+  const y = hex.yangCount;
+  const hexYY = y >= 4 ? "陽" : y <= 2 ? "陰" : "平";
+  const me = dmYang ? "陽" : "陰";
+  const hexText = { 陽: `卦中 ${y} 陽爻，偏陽`, 陰: `卦中 ${y} 陽爻，偏陰`, 平: "卦中三陰三陽，陰陽平衡" }[hexYY];
+  const key = me + hexYY;
+  const T = {
+    陽陽: ["陽遇陽", "你習慣主動往前，這件事也需要推進。兩股力量同方向，速度快，也容易衝過頭。", "如果放慢一半的速度，你會先注意到什麼？"],
+    陽陰: ["陽遇陰", "你習慣主動，這件事卻需要等待、接納和醞釀。剛柔相濟的關鍵在於你願不願意收一點。", "這件事裡，有什麼是你越用力越推不動的？"],
+    陽平: ["陽遇平衡", "局面本身不偏不倚，你的主動會決定它往哪裡傾斜。", "你想讓這件事往哪個方向傾斜？為什麼？"],
+    陰陽: ["陰遇陽", "你習慣蓄積、內斂、先想清楚，這件事卻要你出手。", "你還在等的那個「準備好」，具體是什麼？"],
+    陰陰: ["陰遇陰", "你和這件事都偏靜、偏守。適合沉澱，但也要留意是不是一直在等。", "如果一個月後仍然沒有動，你可以接受嗎？"],
+    陰平: ["陰遇平衡", "局面本身平衡，你的審慎是優勢，但也要留意不要只觀望。", "在你觀察到的資訊裡，哪一個已經足夠讓你踏出第一步？"]
+  }[key];
+  return { me, hexYY, hexText, title: T[0], d: T[1], q: T[2] };
+}
+
+// ===== 狀態 =====
+const SAMPLE_BIRTH = { d: "1990-05-17", t: "14:30", noTime: false };
 const SAMPLE_Q = "要不要在明年初換工作？";
 const SAMPLE_VALS = [7, 8, 9, 7, 8, 8];
+let birthSample = true, chartData = null;
+let hexSample = true, vals = [];
 
-const $ = id => document.getElementById(id);
-const reading = $("reading");
-
-function rand2() { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] & 1; }
-function tossOne() {
-  const coins = [rand2(), rand2(), rand2()]; // 1 = 正面(3)
-  const v = coins.reduce((s, c) => s + (c ? 3 : 2), 0);
-  return { coins, v };
+// ===== 生辰區 =====
+// 出生時間用兩個下拉選單（00–23 時、00–59 分），不受瀏覽器語系影響，固定 24 小時制
+const pad2 = n => String(n).padStart(2, "0");
+function fillTimeSelect(sel, n, unit) {
+  sel.innerHTML = `<option value="">--${unit}</option>` + Array.from({ length: n }, (_, i) => `<option value="${pad2(i)}">${pad2(i)}</option>`).join("");
 }
-const NAMES = { 6: "老陰（變）", 7: "少陽", 8: "少陰", 9: "老陽（變）" };
+fillTimeSelect($("btH"), 24, "時"); fillTimeSelect($("btM"), 60, "分");
+function getTime() { const h = $("btH").value, m = $("btM").value; return h && m ? `${h}:${m}` : ""; }
+function setTime(t) { const [h = "", m = ""] = (t || "").split(":"); $("btH").value = h; $("btM").value = m; }
+function setTimeDisabled(on) { $("btH").disabled = on; $("btM").disabled = on; }
+function readBirth() {
+  const d = $("bd").value, t = getTime(), noTime = $("noTime").checked;
+  if (!d) return { err: "請先填出生日期。" };
+  const [y, m, dd] = d.split("-").map(Number);
+  if (y < 1901 || y > 2099) return { err: "目前支援 1901 到 2099 年出生。" };
+  let hh = null, mm = null;
+  if (!noTime) {
+    if (!t) return { err: "請填出生時間，或勾選「不知道出生時間」。" };
+    [hh, mm] = t.split(":").map(Number);
+  }
+  return { y, m, d: dd, hh, mm, raw: { d, t, noTime } };
+}
+function renderChart() {
+  const b = readBirth();
+  if (b.err) { $("bErr").textContent = b.err; return; }
+  $("bErr").textContent = "";
+  const bz = bazi(b.y, b.m, b.d, b.hh, b.mm);
+  const an = analyze(bz);
+  chartData = { bz, an };
+  const P = [["年柱", bz.year], ["月柱", bz.month], ["日柱", bz.day], ["時柱", bz.hour]];
+  const pillars = P.map(([nm, p], i) => {
+    if (!p) return `<div class="pillar unknown"><div class="gz"><span>？</span><span>？</span></div><small>${nm}<br>時辰未知</small></div>`;
+    const s = STEMS[p[0]], br = BRANCHES[p[1]];
+    return `<div class="pillar ${i === 2 ? "day" : ""}"><div class="gz">
+      <span style="--el:var(${EL_VAR[STEM_EL[p[0]]]})">${s}</span><span style="--el:var(${EL_VAR[BR_EL[p[1]]]})">${br}</span></div>
+      <small>${nm}${i === 2 ? "（日主）" : ""}<br>${STEM_EL[p[0]]} · ${BR_EL[p[1]]}</small></div>`;
+  }).join("");
+  const max = Math.max(...Object.values(an.cnt));
+  const bars = ELS.map(e => `<div class="bar" style="--el:var(${EL_VAR[e]})"><span>${e}</span>
+    <div class="track"><div class="fill" style="width:${an.cnt[e] / max * 100}%"></div></div><span class="v">${an.cnt[e]}</span></div>`).join("");
+  const dmChar = STEMS[bz.day[0]];
+  const strengthText = { 偏強: "生扶你的力量超過一半，底色偏強。", 偏弱: "生扶你的力量不到一半，底色偏弱。", 中和: "生扶與耗洩的力量差不多，底色比較平衡。" }[an.strength];
+  const missing = ELS.filter(e => an.cnt[e] === 0);
+  $("chart").innerHTML = `
+    <div class="pillars">${pillars}</div>
+    <div class="dm" style="--el:var(${EL_VAR[an.dm]})">
+      <span class="label">日主</span>
+      <h3>${dmChar}${an.dm}，${an.dmYang ? "陽" : "陰"}${an.dm} · ${an.strength}</h3>
+      <p>${strengthText}生你的是${an.mother}，和你同類的是${an.dm}，兩者合計 ${an.cnt[an.dm] + an.cnt[an.mother]} / ${an.total}。${missing.length ? `命局中沒有${missing.join("、")}。` : ""}</p>
+    </div>
+    <div class="bars" aria-label="五行分布">${bars}</div>`;
+  $("bSample").hidden = !birthSample;
+  if (!birthSample && $("remember").checked) store("wxhp-birth", b.raw);
+  renderMerge();
+}
+$("calcBtn").addEventListener("click", () => { birthSample = false; renderChart(); });
+$("noTime").addEventListener("change", () => { setTimeDisabled($("noTime").checked); });
+$("remember").addEventListener("change", () => {
+  if (!$("remember").checked) store("wxhp-birth", undefined);
+  else if (!birthSample) { const b = readBirth(); if (!b.err) store("wxhp-birth", b.raw); }
+});
 
+// ===== 起卦區 =====
+function rand2() { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] & 1; }
+function tossOne() { const coins = [rand2(), rand2(), rand2()]; return { coins, v: coins.reduce((s, c) => s + (c ? 3 : 2), 0) }; }
+const NAMES = { 6: "老陰（變）", 7: "少陽", 8: "少陰", 9: "老陽（變）" };
 function showCoins(coins, v, idx) {
   coins.forEach((c, i) => {
     const el = $("c" + i);
     el.classList.remove("spin"); void el.offsetWidth; el.classList.add("spin");
-    el.textContent = c ? "正" : "反";
-    el.classList.toggle("yang", !!c);
+    el.textContent = c ? "正" : "反"; el.classList.toggle("yang", !!c);
   });
   $("tossInfo").innerHTML = `第 ${idx} 爻：${coins.map(c => c ? 3 : 2).join(" + ")} = <strong>${v}，${NAMES[v]}</strong>`;
 }
-
 function updateButtons() {
-  const n = vals.length;
-  $("tossBtn").disabled = n >= 6;
-  $("allBtn").disabled = n >= 6;
+  const n = hexSample ? 0 : vals.length;
+  $("tossBtn").disabled = n >= 6; $("allBtn").disabled = n >= 6;
   $("tossBtn").textContent = n >= 6 ? "六爻已成" : `擲第 ${n + 1} 爻`;
   $("resetBtn").hidden = n === 0;
+  $("hSample").hidden = !hexSample;
 }
-
-function startFresh() {
-  if (sample) { sample = false; vals = []; }
-}
-
-function doToss() {
-  startFresh();
-  if (vals.length >= 6) return;
-  const { coins, v } = tossOne();
-  vals.push(v);
-  showCoins(coins, v, vals.length);
-  updateButtons();
-  render();
-}
-function doAll() {
-  startFresh();
-  let last;
-  while (vals.length < 6) { last = tossOne(); vals.push(last.v); }
-  if (last) showCoins(last.coins, last.v, 6);
-  updateButtons();
-  render();
-}
+function startFresh() { if (hexSample) { hexSample = false; vals = []; } }
+function doToss() { startFresh(); if (vals.length >= 6) return; const r = tossOne(); vals.push(r.v); showCoins(r.coins, r.v, vals.length); updateButtons(); renderHex(); }
+function doAll() { startFresh(); let r; while (vals.length < 6) { r = tossOne(); vals.push(r.v); } if (r) showCoins(r.coins, r.v, 6); updateButtons(); renderHex(); }
 function doReset() {
-  vals = []; sample = false;
+  vals = []; hexSample = false;
   [0, 1, 2].forEach(i => { const el = $("c" + i); el.textContent = "·"; el.classList.remove("yang"); });
   $("tossInfo").textContent = "三枚硬幣一起擲，正面記 3、反面記 2。擲六次，由下往上排出六爻。";
-  updateButtons(); render();
+  updateButtons(); renderHex();
 }
-
-function render() {
-  const v = sample ? SAMPLE_VALS : vals;
-  const q = sample ? SAMPLE_Q : ($("q").value.trim() || "（沒有寫下問題）");
+let hexData = null;
+function renderHex() {
+  const v = hexSample ? SAMPLE_VALS : vals;
   const bits = v.map(x => (x === 7 || x === 9) ? 1 : 0);
-
   if (v.length < 6) {
-    reading.innerHTML = `<span class="label">二、卦象成形中</span>
-      <div class="hexes"><div class="hex">${linesHTML(v, bits, true)}<p class="theme">已擲 ${v.length} / 6 爻，由下往上</p></div></div>`;
-    return;
+    hexData = null;
+    $("hexOut").innerHTML = `<div class="hexes"><div class="hex">${linesHTML(v, bits, true)}<p class="theme">已擲 ${v.length} / 6 爻，由下往上</p></div></div>`;
+    renderMerge(); return;
   }
   const ben = hexFromBits(bits);
   const moving = v.map((x, i) => (x === 6 || x === 9) ? i + 1 : 0).filter(Boolean);
   const zhiBits = v.map(x => x === 9 ? 0 : x === 6 ? 1 : (x === 7 ? 1 : 0));
   const zhi = moving.length ? hexFromBits(zhiBits) : null;
-
   const lo = TRI[ben.lower], up = TRI[ben.upper];
-  const rk = relation(lo.el, up.el), R = REL[rk];
-
+  const rk = relation(lo.el, up.el);
+  hexData = { ben, zhi, moving, rk, q: hexSample ? SAMPLE_Q : ($("q").value.trim() || "（沒有寫下問題）") };
   let changeText;
-  if (!moving.length) changeText = "沒有變爻：局面相對穩定，以本卦為主來思考。";
+  if (!moving.length) changeText = "沒有變爻：局面相對穩定，以本卦為主。";
   else if (moving.length === 6) changeText = "六爻皆變：整個局面都在翻轉，之卦比本卦更值得留意。";
-  else changeText = `第 ${moving.join("、")} 爻是變爻：事情正在變動。本卦是現在的樣子，之卦是它可能的走向。`;
-
-  let zhiRel = "";
-  if (zhi) {
-    const zl = TRI[zhi.lower], zu = TRI[zhi.upper], zk = relation(zl.el, zu.el);
-    zhiRel = `<p class="change">走向之卦後，內外關係變成「${REL[zk].t}」（${flowText(zl.el, zu.el, zk)}）。</p>`;
-  }
-
-  reading.innerHTML = `
-    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">
-      <span class="label">二、你得到的卦</span>
-      ${sample ? '<span class="sample-tag">範例：示範起卦，按上方「擲第 1 爻」開始你自己的</span>' : ""}
-    </div>
-    <p><span class="label">問題</span><br>${esc(q)}</p>
+  else changeText = `第 ${moving.join("、")} 爻是變爻：本卦是現在的樣子，之卦是它可能的走向。`;
+  $("hexOut").innerHTML = `
     <div class="hexes">
-      <div class="hex">
-        <span class="num">本卦 · 第 ${ben.n} 卦</span>
-        ${linesHTML(v, bits, true)}
-        <h2>${ben.full}</h2>
-        <p class="theme">${ben.theme}</p>
-      </div>
+      <div class="hex"><span class="num">本卦 · 第 ${ben.n} 卦</span>${linesHTML(v, bits, true)}<h3>${ben.full}</h3><p class="theme">${ben.theme}</p></div>
       <div class="arrow" aria-hidden="true">→</div>
-      <div class="hex zhi ${zhi ? "" : "none"}">
-        <span class="num">${zhi ? `之卦 · 第 ${zhi.n} 卦` : "之卦"}</span>
-        ${zhi ? linesHTML(zhiBits, zhiBits, false) : linesHTML([], [], false)}
-        <h2>${zhi ? zhi.full : "無"}</h2>
-        <p class="theme">${zhi ? zhi.theme : "沒有變爻"}</p>
-      </div>
+      <div class="hex zhi ${zhi ? "" : "none"}"><span class="num">${zhi ? `之卦 · 第 ${zhi.n} 卦` : "之卦"}</span>
+        ${zhi ? linesHTML(zhiBits, zhiBits, false) : linesHTML([], [], false)}<h3>${zhi ? zhi.full : "無"}</h3><p class="theme">${zhi ? zhi.theme : "沒有變爻"}</p></div>
     </div>
     <p class="change">${changeText}</p>
-
     <div class="tri">
-      <div style="--el:var(${EL_VAR[lo.el]})"><span class="label">下卦 · 你自己</span><span class="sym">${lo.sym}</span><b>${ben.lower}（${lo.img}）</b><small>五行屬${lo.el}</small></div>
-      <div style="--el:var(${EL_VAR[up.el]})"><span class="label">上卦 · 你的情境</span><span class="sym">${up.sym}</span><b>${ben.upper}（${up.img}）</b><small>五行屬${up.el}</small></div>
+      <div style="--el:var(${EL_VAR[lo.el]})"><span class="label">下卦 · 你在這件事裡</span><span class="sym">${lo.sym}</span><b>${ben.lower}（${lo.img}）</b><small>五行屬${lo.el}</small></div>
+      <div style="--el:var(${EL_VAR[up.el]})"><span class="label">上卦 · 這件事的情境</span><span class="sym">${up.sym}</span><b>${ben.upper}（${up.img}）</b><small>五行屬${up.el}</small></div>
     </div>
+    <div class="rel"><span class="flow">${flowText(lo.el, up.el, rk)}</span><h3>${REL[rk].t}</h3><p>${REL[rk].d}</p></div>`;
+  renderMerge();
+}
+$("tossBtn").addEventListener("click", doToss);
+$("allBtn").addEventListener("click", doAll);
+$("resetBtn").addEventListener("click", doReset);
 
-    <div class="rel">
-      <span class="flow">${flowText(lo.el, up.el, rk)}</span>
-      <h3>${R.t}</h3>
-      <p>${R.d}</p>
-      ${zhiRel}
+// ===== 合看 =====
+function renderMerge() {
+  const box = $("merge");
+  if (!chartData || !hexData) {
+    box.innerHTML = `<div class="sec-h"><h2>三、合看</h2></div><p class="change">${!chartData ? "排出四柱" : "擲完六爻"}之後，這裡會把你的底色和這件事的天氣放在一起看。</p>`;
+    return;
+  }
+  const { an } = chartData, { ben, zhi, q } = hexData;
+  const sit = TRI[ben.upper].el;
+  const tg = tenGod(an.dm, sit), f = fit(an.strength, tg.k);
+  const yy = yinYang(an.dmYang, ben);
+  let trend = "";
+  if (zhi) {
+    const ztg = tenGod(an.dm, TRI[zhi.upper].el), zf = fit(an.strength, ztg.k);
+    trend = `<p class="change">走向之卦後，情境變成${TRI[zhi.upper].el}（${ztg.n}），對你是「${zf.t}」。</p>`;
+  }
+  const qs = [yy.q,
+    { good: "這股對你有利的力量，你打算怎麼用？", warn: "如果這件事會消耗你，你需要先準備好什麼，或是先放下什麼？", even: "你希望這件事替你補上什麼？" }[f.chip],
+    `「${ben.theme}」放在你身上，和你平常的做事方式有什麼不同？`];
+  const anySample = birthSample || hexSample;
+  box.innerHTML = `
+    <div class="sec-h"><h2>三、合看</h2>${anySample ? '<span class="sample-tag">含範例資料</span>' : ""}</div>
+    <p><span class="label">問題</span><br>${esc(q)}</p>
+    <div class="axis">
+      <div>
+        <span class="label">陰陽</span>
+        <div class="pair">${yy.me}${an.dm} <span aria-hidden="true">×</span> ${ben.name}<span class="chip even">${yy.title}</span></div>
+        <p class="change">日主${STEMS[chartData.bz.day[0]]}為${yy.me}干；${yy.hexText}。</p>
+        <p>${yy.d}</p>
+      </div>
+      <div>
+        <span class="label">五行</span>
+        <div class="pair">${an.dm} <span aria-hidden="true">←</span> ${sit}<span class="chip ${f.chip}">${f.t}</span></div>
+        <p class="change">情境（上卦${ben.upper}）屬${sit}，對日主${an.dm}來說是「${tg.n}」，${tg.m}。你的底色${an.strength}。</p>
+        <p>${f.d}</p>
+        ${trend}
+      </div>
     </div>
-
     <div>
-      <span class="label">三、帶著這些問題想一想</span>
-      <ol class="qs">
-        <li>「${ben.theme}」這幾個字，放在你的問題裡，指的是什麼？</li>
-        <li>${R.q[0]}</li>
-        <li>${R.q[1]}</li>
-        ${zhi ? `<li>如果事情真的往「${zhi.theme}」走，你現在可以先準備什麼？</li>` : ""}
-      </ol>
+      <span class="label">帶著這些問題想一想</span>
+      <ol class="qs">${qs.map(x => `<li>${x}</li>`).join("")}</ol>
     </div>
-
-    <div class="note-row">
-      <label for="note" class="label">四、寫下你的想法（可留空）</label>
-      <textarea id="note" maxlength="600" placeholder="看到這一卦，你第一個想到的是什麼？"></textarea>
+    <div style="display:grid;gap:8px">
+      <label for="note" class="label">寫下你的想法（可留空）</label>
+      <textarea id="note" maxlength="600" placeholder="看完合看，你第一個想到的是什麼？"></textarea>
       <div class="btns"><button id="saveBtn">存進紀錄</button><span class="saved-msg" id="savedMsg" aria-live="polite"></span></div>
     </div>`;
-
   $("saveBtn").addEventListener("click", () => {
-    const entry = { t: Date.now(), q, ben: ben.full, benN: ben.n, zhi: zhi ? zhi.full : "", rel: R.t, note: $("note").value.trim(), sample };
-    const list = loadJ(); list.unshift(entry); saveJ(list.slice(0, 100));
-    $("saveBtn").disabled = true;
-    $("savedMsg").textContent = sample ? "已存入（標記為範例）" : "已存入紀錄";
+    const e = { t: Date.now(), q, ben: ben.full, zhi: zhi ? zhi.full : "", dm: `${STEMS[chartData.bz.day[0]]}${an.dm}${an.strength}`, fit: f.t, yy: yy.title, note: $("note").value.trim(), sample: anySample };
+    const list = load(JKEY, []); list.unshift(e); store(JKEY, list.slice(0, 100));
+    $("saveBtn").disabled = true; $("savedMsg").textContent = anySample ? "已存入（標記為範例）" : "已存入紀錄";
     renderJ();
   });
 }
 
-const JKEY = "wuxing-wengua-journal";
-function loadJ() { try { return JSON.parse(localStorage.getItem(JKEY) || "[]"); } catch (e) { return []; } }
-function saveJ(list) { try { localStorage.setItem(JKEY, JSON.stringify(list)); } catch (e) {} }
+// ===== 紀錄 =====
+const JKEY = "wxhp-journal";
 function renderJ() {
-  const list = loadJ();
+  const list = load(JKEY, []);
   $("jEmpty").hidden = list.length > 0;
   $("jList").innerHTML = list.map((e, i) => {
     const d = new Date(e.t);
-    const ds = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-    return `<li>
-      <span class="jq">${esc(e.q)}${e.sample ? "（範例）" : ""}</span>
+    return `<li><span class="jq">${esc(e.q)}${e.sample ? "（範例）" : ""}</span>
       <button class="del" data-i="${i}" aria-label="刪除這筆紀錄">刪除</button>
-      <span class="jm">${ds} · ${esc(e.ben)}${e.zhi ? " → " + esc(e.zhi) : ""} · ${esc(e.rel)}</span>
-      ${e.note ? `<span class="jn">${esc(e.note)}</span>` : ""}
-    </li>`;
+      <span class="jm">${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} · ${esc(e.ben)}${e.zhi ? " → " + esc(e.zhi) : ""} · ${esc(e.dm)} · ${esc(e.yy)} · ${esc(e.fit)}</span>
+      ${e.note ? `<span class="jn">${esc(e.note)}</span>` : ""}</li>`;
   }).join("");
 }
 $("jList").addEventListener("click", ev => {
   const b = ev.target.closest(".del"); if (!b) return;
-  const list = loadJ(); list.splice(+b.dataset.i, 1); saveJ(list); renderJ();
+  const list = load(JKEY, []); list.splice(+b.dataset.i, 1); store(JKEY, list); renderJ();
 });
 
-$("tossBtn").addEventListener("click", doToss);
-$("allBtn").addEventListener("click", doAll);
-$("resetBtn").addEventListener("click", doReset);
+// ===== 啟動 =====
+const saved = load("wxhp-birth", null);
+const start = saved || SAMPLE_BIRTH;
+birthSample = !saved;
+$("bd").value = start.d; setTime(start.t); $("noTime").checked = !!start.noTime; setTimeDisabled(!!start.noTime);
+$("remember").checked = !!saved;
 $("q").value = "";
+renderChart();
 updateButtons();
-$("tossBtn").textContent = "擲第 1 爻";
-render();
+renderHex();
 renderJ();
 </script>
 <script>
