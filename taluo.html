@@ -1,0 +1,411 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>塔羅</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap">
+<style>
+/* 版面：兩段。上段「生日牌」用出生日期算出人格牌與靈魂牌；下段「抽牌」帶著問題抽一張或三張，牌面朝下再翻開。
+   牌面為本站自繪：白底細框，大牌畫首頁的彩色線束，小牌依花色畫權杖、聖杯、寶劍、錢幣的幾何圖形 */
+/* 配色：和首頁一致的近白底、炭黑字；花色用首頁線束的粉紅（權杖）、天藍（聖杯）、深藍（寶劍）、金色（錢幣），牌背為深藍，固定淺色 */
+:root {
+  --paper: #FAFAF8; --surface: #FFFFFF; --ink: #2B2B2B; --muted: #666663; --rule: #E2E2DE;
+  --accent: #2C6B5E; --accent-soft: #E1ECE8; --mark: #B0432D;
+  --pink: #E8577E; --yellow: #F6DD6A; --blue: #3FA4E0; --deep: #1E2A3A; --gold: #B98B2E;
+  --wands: #D9466F; --cups: #2E8FCF; --swords: #34465E; --pents: #B98B2E; --major: #2B2B2B;
+  --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --f-latin: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px }
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 28px }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.3 }
+p { margin: 0 }
+.label { font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 500 }
+.hint { font-size: 13px; color: var(--muted) }
+.sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
+
+header { display: grid; gap: 8px }
+header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
+header p { color: var(--muted); max-width: 36em }
+
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 18px; min-width: 0; scroll-margin-top: 80px }
+.sec-h { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between }
+.sec-h h2 { font-size: 22px }
+.sec-h .tag { font-size: 12px; letter-spacing: .14em; color: var(--muted) }
+
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px }
+.form > div { display: grid; gap: 4px; min-width: 0; align-content: start }
+.form .full { grid-column: 1 / -1 }
+input[type="text"], input[type="date"] {
+  font: inherit; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); width: 100% }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.seg { display: flex; flex-wrap: wrap; gap: 8px }
+.seg label { flex: 1 1 10em; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); cursor: pointer; font-size: 15px; text-align: center }
+.seg label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 500 }
+.seg input { accent-color: var(--accent) }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted) }
+.checks label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center }
+button { font: inherit; font-weight: 500; border-radius: 4px; padding: 10px 24px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
+.err { color: var(--mark); font-size: 14px }
+
+/* 牌 */
+.spread { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(12px, 3vw, 28px) }
+.slot { display: grid; gap: 8px; justify-items: center; width: clamp(96px, 26vw, 150px); text-align: center }
+.slot .pos { font-size: 13px; letter-spacing: .12em; color: var(--muted) }
+.card { width: 100%; aspect-ratio: 3 / 5; max-width: 100%; perspective: 900px; cursor: default }
+.card .in { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, .7, .2, 1) }
+.card.up .in { transform: rotateY(180deg) }
+.card svg { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 8px; box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 6px 18px rgba(0, 0, 0, .08) }
+.card .face { transform: rotateY(180deg) }
+.card.rev .face { transform: rotateY(180deg) rotate(180deg) }
+.slot .nm { font-family: var(--f-display); font-weight: 900; font-size: clamp(16px, 2.6vw, 20px); line-height: 1.3 }
+.slot .ori { font-size: 12px; color: var(--muted) }
+.slot .ori.r { color: var(--mark) }
+
+.reads { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px }
+.reads li { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 4px 16px; padding-top: 12px; border-top: 1px solid var(--rule) }
+.reads li:first-child { border-top: 0; padding-top: 0 }
+.reads .pos { font-size: 13px; color: var(--muted); letter-spacing: .08em }
+.reads b { font-family: var(--f-display); font-size: 18px }
+.reads .kw { font-size: 13px; color: var(--c); margin-left: 8px }
+.reads p { font-size: 15px; color: var(--ink) }
+.reads .sub { font-size: 13px; color: var(--muted) }
+.qs { margin: 0; padding-left: 1.3em; display: grid; gap: 8px }
+.birth-read { display: grid; gap: 10px }
+.birth-read p { font-size: 15px }
+.note { font-size: 13px; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 12px }
+
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
+
+@media (max-width: 560px) {
+  .form { grid-template-columns: 1fr }
+  .reads li { grid-template-columns: 1fr }
+}
+@media (prefers-reduced-motion: reduce) { .card .in { transition: none } }
+
+/* 網站導覽列：固定在頂端，左邊回首頁，右邊切換工具 */
+.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--rule);
+  padding-top: env(safe-area-inset-top, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.sitebar .in { max-width: 880px; margin: 0 auto; height: 54px; display: flex; align-items: center; gap: 12px }
+.sitebar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; padding: 6px 12px 6px 8px; margin-left: -8px; border-radius: 999px }
+.sitebar .brand:hover { background: var(--paper) }
+.sitebar .brand .ar { font-size: 18px; line-height: 1 }
+.sitebar .brand b { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; font-weight: 700; font-size: 18px; letter-spacing: .18em }
+.sitebar .brand b i { font-style: normal; color: #B0432D }
+.sitebar nav { margin-left: auto; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none }
+.sitebar nav a { padding: 6px 12px; font-size: 14px; color: var(--muted); text-decoration: none; border-radius: 999px; white-space: nowrap }
+.sitebar nav a:hover { color: var(--ink) }
+.sitebar nav a[aria-current="page"] { color: var(--surface); background: var(--ink) }
+.sitebar a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px }
+body { padding-top: calc(54px + 28px + env(safe-area-inset-top, 0px)) }
+@media (max-width: 480px) {
+  .sitebar .in { gap: 4px }
+  .sitebar .brand { padding-right: 8px }
+  .sitebar .brand b { font-size: 16px; letter-spacing: .1em }
+  .sitebar nav a { padding: 6px 7px; font-size: 13px }
+  .sitebar .brand .ar { display: none }
+}
+
+/* 頁首線束：和首頁主視覺同一組顏色，靜止、較淡，往下淡出，只當頁首背景 */
+.threads-bg { position: absolute; left: 0; right: 0; top: calc(54px + env(safe-area-inset-top, 0px)); height: 190px; width: 100%; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent); mask-image: linear-gradient(to bottom, #000 65%, transparent) }
+.wrap { position: relative; z-index: 1 }
+</style>
+
+<div class="sitebar"><div class="in">
+  <a class="brand" href="./" aria-label="回首頁：掌上命珠"><span class="ar" aria-hidden="true">←</span><b>掌上命<i>珠</i></b></a>
+  <nav aria-label="工具"><a href="ziwei-mingpan.html">紫微</a><a href="xingzuo-mingpan.html">星座</a><a href="renleitu.html">人類圖</a><a href="taluo.html" aria-current="page">塔羅</a><a href="wuxing-wengua.html">問卦</a><a href="shuangren-hepan.html">雙人合盤</a></nav>
+</div></div>
+<script>document.querySelector(".sitebar nav [aria-current]")?.scrollIntoView({ block: "nearest", inline: "center" });</script>
+<canvas class="threads-bg" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header>
+    <span class="label">生日牌 × 抽牌</span>
+    <h1>塔羅</h1>
+    <p>生日牌看你這一生帶著的主題，不會改變；抽牌看你此刻心裡的那件事，每次都不同。<br>牌不替你做決定，它給你一面鏡子。</p>
+  </header>
+
+  <section class="panel" id="birth" aria-labelledby="b-h">
+    <div class="sec-h"><h2 id="b-h">一、你的生日牌</h2><span class="tag">主線 · 認識自己</span></div>
+    <div class="form">
+      <div><label for="bd" class="label">出生日期（國曆）</label><input id="bd" type="date" min="1901-01-01" max="2099-12-31"></div>
+      <div style="align-content:end"><div class="btns"><button id="birthBtn">算出生日牌</button><span class="err" id="bErr" aria-live="polite"></span></div></div>
+    </div>
+    <div class="checks"><label><input id="remember" type="checkbox"> 記住在這台裝置</label></div>
+    <div id="birthOut" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" id="draw" aria-labelledby="d-h">
+    <div class="sec-h"><h2 id="d-h">二、抽牌</h2><span class="tag">支線 · 問一件事</span></div>
+    <div class="form">
+      <div class="full"><label for="q" class="label">你想問的事（可留空）</label><input id="q" type="text" maxlength="80" placeholder="例如：這份工作我還要再撐下去嗎？"></div>
+      <div class="full"><span class="label" id="sp-l">牌陣</span>
+        <div class="seg" role="radiogroup" aria-labelledby="sp-l">
+          <label><input type="radio" name="spread" value="one" checked> 單張：給我一個提醒</label>
+          <label><input type="radio" name="spread" value="time"> 三張：過去・現在・未來</label>
+          <label><input type="radio" name="spread" value="way"> 三張：現況・阻礙・建議</label>
+        </div></div>
+    </div>
+    <div class="checks"><label><input id="useRev" type="checkbox" checked> 包含逆位</label></div>
+    <div class="btns"><button id="drawBtn">洗牌，抽牌</button><span class="hint" id="drawHint"></span></div>
+    <div id="drawOut" aria-live="polite"></div>
+  </section>
+
+  <footer>
+    <p>生日牌依出生年、月、日的數字相加，再把各位數加總到 22 以內，得到人格牌；兩位數再加一次，得到靈魂牌。22 視為愚者。</p>
+    <p>抽牌從 78 張牌中隨機抽出，使用瀏覽器內建的亂數。牌面為本站自繪，說明文字為本站撰寫。</p>
+    <p>這是一個認識自己的反思工具，不做預測，也不取代專業意見。</p>
+  </footer>
+</div>
+
+<script>
+// ===== 共用 =====
+const $ = id => document.getElementById(id);
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function store(k, v) { try { v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function load(k, d) { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : d; } catch (e) { return d; } }
+const ROMAN = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI"];
+
+// ===== 牌 =====
+// 大牌：[名稱, 正位關鍵字, 正位說明, 逆位關鍵字, 當作生日牌時的說明]
+const MAJOR = [
+  ["愚者", "自由、新的開始", "放下包袱，帶著好奇跳進未知。現在適合嘗試，不必等到萬事俱備。", "衝動、逃避責任", "自由、好奇，願意跳進未知。這一生的課題是在冒險和責任之間找到平衡。"],
+  ["魔術師", "行動、資源到位", "你手上已經有需要的工具，關鍵是開始動手，把想法變成現實。", "空想、用錯力氣", "有行動力和溝通力，想到就能動手做。課題是專注在一件事上，把它做到底。"],
+  ["女祭司", "直覺、靜觀", "答案不在外面，在你安靜下來時的直覺裡。先觀察，不急著行動。", "忽略直覺、想太多", "直覺敏銳、內斂，看得到表面底下的東西。課題是信任自己內在的聲音。"],
+  ["皇后", "豐盛、滋養", "用溫柔和耐心照顧這件事，它會慢慢長大。也別忘了照顧自己。", "過度付出、停滯", "溫暖、有創造力，擅長滋養人和事。課題是在照顧別人時，也好好照顧自己。"],
+  ["皇帝", "秩序、責任", "需要建立規則和結構，拿出主導權，為結果負責。", "控制、僵化", "重視秩序和責任，能建立穩定的結構。課題是在掌控和彈性之間找到平衡。"],
+  ["教皇", "信念、學習、傳統", "向有經驗的人請教，或回到你相信的價值，會找到方向。", "教條、盲從", "重視信念和傳承，樂於學習也樂於教人。課題是找到真正屬於自己的信仰。"],
+  ["戀人", "選擇、真心", "這是一個關於選擇的時刻，選那個讓你忠於自己的。", "猶豫、價值衝突", "重視關係和真心相待。課題是做出忠於自己的選擇，而不只是討人喜歡。"],
+  ["戰車", "意志、前進", "目標清楚，就專心往前衝。把相反的力量都收攏到同一個方向。", "失控、方向分散", "意志堅定、目標明確，能克服阻礙。課題是駕馭內心兩股相反的力量。"],
+  ["力量", "溫柔的堅定", "用耐心和溫柔，而不是蠻力，化解眼前的難題。", "自我懷疑、壓抑", "溫柔而堅定，能用耐心化解衝突。課題是溫和地面對自己的本能和情緒。"],
+  ["隱者", "獨處、內省", "退一步，給自己安靜的時間，答案會在獨處中浮現。", "孤立、逃避人群", "喜歡獨處和思考，追求內在的智慧。課題是把自己找到的光，分享給需要的人。"],
+  ["命運之輪", "轉變、時機", "局勢正在轉動，順著變化走，抓住來到眼前的時機。", "抗拒改變、時機未到", "人生常有轉折，能適應變化。課題是在起起落落中看見循環，不被一時的好壞困住。"],
+  ["正義", "公平、因果", "誠實面對事實，做出公平的判斷，並承擔選擇的後果。", "偏頗、逃避後果", "重視公平、講道理。課題是為自己的每一個選擇負責。"],
+  ["吊人", "換個角度、暫停", "事情卡住時，先停下來換個角度看，等待也是一種前進。", "白白犧牲、拖延", "願意換個角度看事情，懂得等待。課題是分辨什麼是犧牲、什麼是真正的放下。"],
+  ["死神", "結束、蛻變", "某件事走到了終點。放手讓它結束，才有空間迎接新的開始。", "抗拒結束、停滯", "生命中常有蛻變，能結束舊的、迎接新的。課題是不害怕結束。"],
+  ["節制", "調和、平衡", "找到中間點，把不同的元素慢慢調和在一起，不走極端。", "失衡、過度", "擅長調和、找到中間點。課題是在兩個極端之間保持平衡。"],
+  ["惡魔", "慾望、束縛", "看看是什麼讓你放不下：一個習慣、一段關係，還是一種恐懼？", "掙脫、看清束縛", "有強烈的慾望和魅力。課題是看見讓自己被綁住的是什麼，並且選擇鬆開它。"],
+  ["高塔", "突變、打破", "原本的結構正在崩解。雖然不舒服，卻是重建的機會。", "害怕改變、延後崩解", "人生會經歷突然的改變，也能打破舊框架。課題是在崩解之後重新蓋起自己的塔。"],
+  ["星星", "希望、療癒", "經歷風雨之後，希望回來了。相信自己，慢慢恢復。", "失去信心、灰心", "懷抱希望和理想，能療癒身邊的人。課題是相信自己也值得被好好對待。"],
+  ["月亮", "不安、直覺與幻象", "事情還看不清楚，有些恐懼來自想像。給自己時間，等霧散開。", "看清真相、恐懼消退", "想像力豐富、感受細膩。課題是分辨哪些是直覺、哪些是恐懼。"],
+  ["太陽", "喜悅、明朗", "事情明朗、順利，適合大方展現自己，享受當下。", "短暫的低潮、過度樂觀", "樂觀、溫暖，能帶給人活力。課題是長大之後，仍然保有赤子之心。"],
+  ["審判", "覺醒、重新出發", "聽見內心的召喚，原諒過去，給自己一個重新開始的機會。", "自我批判、錯過召喚", "會在關鍵時刻醒悟、重新出發。課題是原諒過去，回應內在的召喚。"],
+  ["世界", "完成、圓滿", "一個階段圓滿完成。好好慶祝，也準備走進下一個旅程。", "差最後一步、未完成", "追求完整，視野寬廣。課題是一個階段完成後，勇敢開始下一段。"]
+];
+const SUITS = [
+  ["權杖", "wands", "行動和熱情"], ["聖杯", "cups", "感情和關係"], ["寶劍", "swords", "思考和溝通"], ["錢幣", "pents", "金錢、工作和身體"]
+];
+const RANKS = ["王牌", "二", "三", "四", "五", "六", "七", "八", "九", "十", "侍者", "騎士", "皇后", "國王"];
+// 小牌：每個花色 14 張的 [正位, 逆位]
+const MINOR = {
+  wands: [["新的熱情、靈感開始", "熱情冷卻"], ["規劃未來、做出選擇", "猶豫不決"], ["拓展、等待成果", "進展延遲"], ["慶祝、穩定的喜悅", "不安定"],
+    ["競爭、意見衝突", "避開衝突"], ["勝利、被肯定", "自我懷疑"], ["堅守立場", "疲於防守"], ["快速進展、消息到來", "延誤"],
+    ["堅持、最後一道防線", "筋疲力盡"], ["負擔過重", "放下重擔"], ["好奇探索、新點子", "三分鐘熱度"], ["衝勁、冒險", "衝動行事"],
+    ["自信、溫暖有魅力", "嫉妒、沒自信"], ["遠見、領導", "專橫"]],
+  cups: [["新的感情、心被打開", "情感封閉"], ["互相吸引、結盟", "關係失衡"], ["友誼、慶祝", "過度放縱"], ["冷淡、錯過機會", "重新接受"],
+    ["失落、遺憾", "走出悲傷"], ["回憶、童心", "困在過去"], ["幻想、選擇太多", "看清現實"], ["離開、尋找更深的意義", "不敢放手"],
+    ["心願達成、滿足", "不滿足"], ["家庭和樂、圓滿", "關係不和"], ["感性、新的情感訊息", "情緒化"], ["浪漫、追求", "不切實際"],
+    ["同理、照顧", "情緒依賴"], ["情緒成熟、包容", "情緒壓抑"]],
+  swords: [["清晰、突破", "思緒混亂"], ["僵持、難以抉擇", "資訊浮現"], ["心痛、分離", "慢慢療傷"], ["休息、沉澱", "重新出發"],
+    ["爭執、贏了卻失去", "和解"], ["過渡、離開困境", "卡住"], ["策略、隱瞞", "坦白"], ["受困、自我設限", "解脫"],
+    ["焦慮、失眠", "走出恐懼"], ["結束、谷底", "慢慢復原"], ["好奇、觀察", "說話不經思考"], ["果斷、急進", "魯莽"],
+    ["清醒、獨立", "冷漠尖銳"], ["理性、公正的判斷", "冷酷"]],
+  pents: [["新的機會、實際的開始", "錯失機會"], ["平衡、多工", "失衡"], ["合作、技藝", "缺乏協作"], ["守成、保守", "過度控制"],
+    ["匱乏、困難", "逐漸回復"], ["給予與接受", "不對等"], ["耐心、等待收成", "焦急"], ["專注、練習", "敷衍"],
+    ["自足、享受成果", "過度依賴物質"], ["家業、長久的穩定", "財務糾紛"], ["學習、新計畫", "拖延"], ["踏實、穩定前進", "停滯"],
+    ["務實照顧、富足", "忽略自己"], ["富足、可靠", "固執、貪心"]]
+};
+const DECK = [];
+MAJOR.forEach((m, i) => DECK.push({ id: "M" + i, major: true, n: i, name: m[0], up: m[1], text: m[2], rev: m[3] }));
+SUITS.forEach(([sn, key, theme]) => RANKS.forEach((r, i) => DECK.push({ id: key + i, major: false, suit: key, sn, theme, rank: i, name: sn + r, up: MINOR[key][i][0], rev: MINOR[key][i][1] })));
+
+// ===== 牌面（SVG）=====
+function threadPaths(seed, n, x0, y0, w, h) {
+  let s = seed; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const cols = ["var(--pink)", "var(--yellow)", "var(--blue)"];
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const off = (rnd() - .5) * h * .5, a = rnd() * 6.28, f = 1.5 + rnd() * 2;
+    let d = "";
+    for (let k = 0; k <= 24; k++) {
+      const u = k / 24, x = x0 + w * u, y = y0 + h * (.8 - .6 * u) + off * (.3 + u) + Math.sin(u * f * 3.14 + a) * h * .05;
+      d += (k ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+    }
+    out += `<path d="${d}" fill="none" stroke="${cols[i % 3]}" stroke-width="${(.6 + rnd()).toFixed(2)}" stroke-opacity=".85" stroke-linecap="round"/>`;
+  }
+  return out;
+}
+function suitMark(suit, x, y, s) {
+  const c = `var(--${suit})`;
+  switch (suit) {
+    case "wands": return `<line x1="${x}" y1="${y - s}" x2="${x}" y2="${y + s}" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/><circle cx="${x}" cy="${y - s}" r="2.2" fill="${c}"/>`;
+    case "cups": return `<path d="M${x - s * .6} ${y - s * .5} Q${x - s * .6} ${y + s * .5} ${x} ${y + s * .5} Q${x + s * .6} ${y + s * .5} ${x + s * .6} ${y - s * .5} Z" fill="none" stroke="${c}" stroke-width="1.8"/><line x1="${x}" y1="${y + s * .5}" x2="${x}" y2="${y + s}" stroke="${c}" stroke-width="1.8"/><line x1="${x - s * .35}" y1="${y + s}" x2="${x + s * .35}" y2="${y + s}" stroke="${c}" stroke-width="1.8"/>`;
+    case "swords": return `<line x1="${x}" y1="${y - s}" x2="${x}" y2="${y + s * .55}" stroke="${c}" stroke-width="1.8"/><line x1="${x - s * .45}" y1="${y + s * .45}" x2="${x + s * .45}" y2="${y + s * .45}" stroke="${c}" stroke-width="1.8"/><line x1="${x}" y1="${y + s * .45}" x2="${x}" y2="${y + s}" stroke="${c}" stroke-width="2.6"/>`;
+    case "pents": return `<circle cx="${x}" cy="${y}" r="${s * .7}" fill="none" stroke="${c}" stroke-width="1.8"/><circle cx="${x}" cy="${y}" r="${s * .22}" fill="${c}"/>`;
+  }
+}
+const COURT = ["侍", "騎", "后", "王"];
+function faceSvg(c) {
+  const W = 120, H = 200;
+  let body = "", top, color;
+  if (c.major) {
+    color = "var(--major)"; top = ROMAN[c.n];
+    body = threadPaths(1009 + c.n * 37, 16, 14, 46, 92, 90) + `<circle cx="${60 + Math.sin(c.n) * 22}" cy="${92 - Math.cos(c.n * 1.7) * 14}" r="4.5" fill="var(--mark)"/>`;
+  } else {
+    color = `var(--${c.suit})`;
+    if (c.rank <= 9) {
+      top = c.rank === 0 ? "A" : String(c.rank + 1);
+      const n = c.rank + 1, cols = [0, 1, 2, 3, 2, 3, 3, 4, 4, 3, 5][n], rows = Math.ceil(n / cols);
+      const size = n === 1 ? 22 : n <= 3 ? 13 : 10, dx = cols >= 5 ? 19 : cols === 4 ? 22 : 26, dy = rows >= 3 ? 27 : 32;
+      for (let i = 0; i < n; i++) {
+        const r = Math.floor(i / cols), k = i % cols, inRow = Math.min(cols, n - r * cols);
+        const x = 60 + (k - (inRow - 1) / 2) * dx, y = 92 + (r - (rows - 1) / 2) * dy;
+        body += suitMark(c.suit, x, y, size);
+      }
+    } else {
+      top = COURT[c.rank - 10];
+      body = suitMark(c.suit, 60, 86, 20) + `<path d="M44 124 L52 116 L60 124 L68 116 L76 124" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round"/>`;
+    }
+  }
+  return `<svg class="face" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+    <rect x=".5" y=".5" width="${W - 1}" height="${H - 1}" rx="8" fill="var(--surface)" stroke="var(--rule)"/>
+    <rect x="7" y="7" width="${W - 14}" height="${H - 14}" rx="4" fill="none" stroke="${color}" stroke-width=".8"/>
+    <text x="60" y="30" text-anchor="middle" font-family="${/^[0-9A-Z]/.test(top) ? "Bodoni Moda, Georgia, serif" : "Noto Serif TC, serif"}" font-size="15" fill="${color}">${top}</text>
+    ${body}
+    <line x1="34" y1="150" x2="86" y2="150" stroke="var(--rule)"/>
+    <text x="60" y="174" text-anchor="middle" font-family="Noto Serif TC, serif" font-weight="900" font-size="${c.name.length > 4 ? 13 : 15}" fill="var(--ink)">${c.name}</text>
+  </svg>`;
+}
+function backSvg() {
+  return `<svg class="back" viewBox="0 0 120 200" aria-hidden="true">
+    <rect x=".5" y=".5" width="119" height="199" rx="8" fill="var(--deep)"/>
+    <rect x="7" y="7" width="106" height="186" rx="4" fill="none" stroke="var(--gold)" stroke-width=".8" stroke-opacity=".7"/>
+    ${threadPaths(777, 14, 10, 50, 100, 100)}
+    <text x="60" y="182" text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-weight="700" font-size="9" letter-spacing="3" fill="var(--gold)">掌上命珠</text>
+  </svg>`;
+}
+function cardHtml(c, rev, faceUp) {
+  return `<div class="card${faceUp ? " up" : ""}${rev ? " rev" : ""}" role="img" aria-label="${c.name}${rev ? "（逆位）" : ""}"><div class="in">${backSvg()}${faceSvg(c)}</div></div>`;
+}
+
+// ===== 生日牌 =====
+const digits = n => String(n).split("").reduce((a, b) => a + +b, 0);
+function birthCards(y, m, d) {
+  let n = y + m + d;
+  while (n > 22) n = digits(n);
+  const chain = [n];
+  while (chain[chain.length - 1] > 9 && chain[chain.length - 1] !== 22) chain.push(digits(chain[chain.length - 1]));
+  if (n === 22) chain.push(4); // 22 是愚者，再加一次是 4（皇帝）
+  return chain.map(x => x === 22 ? 0 : x);
+}
+function renderBirth(y, m, d, sample) {
+  const chain = birthCards(y, m, d);
+  const cards = chain.map(i => DECK[i]);
+  const label = (i, k) => chain.length === 1 ? "人格牌＝靈魂牌" : k === 0 ? "人格牌" : k === chain.length - 1 ? "靈魂牌" : "隱藏的牌";
+  const sum = y + m + d;
+  $("birthOut").innerHTML = `
+    ${sample ? '<span class="sample-tag">範例生辰</span>' : ""}
+    <div class="spread">${cards.map((c, k) => `<div class="slot"><span class="pos">${label(c, k)}</span>${cardHtml(c, false, true)}<span class="nm">${ROMAN[c.n]} ${c.name}</span></div>`).join("")}</div>
+    <div class="birth-read">
+      <p class="hint">${y} + ${m} + ${d} = ${sum}，各位數加總到 22 以內是 ${chain[0] === 0 ? 22 : chain[0]}${chain.length > 1 ? `，再加一次得到 ${chain.slice(1).join("、")}` : ""}。</p>
+      ${cards.map((c, k) => `<p><b>${label(c, k)}・${c.name}：</b>${MAJOR[c.n][4]}</p>`).join("")}
+      <p class="note">${chain.length === 1 ? "人格牌和靈魂牌是同一張，這個主題在你身上特別鮮明。" : "人格牌是你在這一生表現出來的樣子，靈魂牌是更深層、一直陪著你的主題。"}</p>
+    </div>`;
+}
+
+// ===== 抽牌 =====
+const SPREADS = {
+  one: [["提醒", "這件事要你看見的"]],
+  time: [["過去", "影響這件事的背景"], ["現在", "你現在的狀態"], ["未來", "照現在走下去的方向"]],
+  way: [["現況", "這件事現在的樣子"], ["阻礙", "卡住你的是什麼"], ["建議", "可以試試的方向"]]
+};
+function randInt(n) { const a = new Uint32Array(1); let x; do { crypto.getRandomValues(a); x = a[0]; } while (x >= Math.floor(2 ** 32 / n) * n); return x % n; }
+function drawCards(k, useRev) {
+  const deck = DECK.map((c, i) => i);
+  for (let i = deck.length - 1; i > 0; i--) { const j = randInt(i + 1); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  return deck.slice(0, k).map(i => ({ c: DECK[i], rev: useRev && randInt(2) === 1 }));
+}
+function readingText(c, rev) {
+  if (c.major) return rev ? `能量受阻或還沒準備好：${c.rev}。${c.text.split("。")[0]}，只是現在還不順。` : c.text;
+  const base = `這是一張關於${c.theme}的牌`;
+  return rev ? `${base}，此刻的能量卡住了：${c.rev}。` : `${base}：${c.up}。`;
+}
+function renderDraw(drawn, spreadKey, q, sample) {
+  const S = SPREADS[spreadKey];
+  const qs = drawn.length === 1
+    ? [`看到「${drawn[0].c.name}」，你第一個想到的是什麼？`, "這張牌說的，和你原本期待的答案一樣嗎？", "今天可以做的一件小事是什麼？"]
+    : [`三張牌裡，哪一張讓你最有感覺？為什麼？`, `「${drawn[1].c.name}」說的狀態，和你最近的感覺像嗎？`, `如果「${drawn[2].c.name}」是一個建議，你今天可以做的一件小事是什麼？`];
+  $("drawOut").innerHTML = `
+    <div style="display:grid;gap:18px">
+      ${sample ? '<span class="sample-tag" style="justify-self:start">範例：按「洗牌，抽牌」開始你自己的</span>' : ""}
+      ${q ? `<p><span class="label">問題</span><br>${esc(q)}</p>` : ""}
+      <div class="spread">${drawn.map((x, i) => `<div class="slot"><span class="pos">${S[i][0]}</span>${cardHtml(x.c, x.rev, sample)}<span class="nm">${x.c.name}</span><span class="ori${x.rev ? " r" : ""}">${x.rev ? "逆位" : "正位"}</span></div>`).join("")}</div>
+      <ul class="reads">${drawn.map((x, i) => `<li style="--c:var(--${x.c.major ? "mark" : x.c.suit})"><span class="pos">${S[i][0]}<br><span class="sub">${S[i][1]}</span></span>
+        <div><b>${x.c.name}</b><span class="kw">${x.rev ? "逆位・" + x.c.rev : x.c.up}</span><p>${readingText(x.c, x.rev)}</p></div></li>`).join("")}</ul>
+      <div><span class="label">帶著這些問題想一想</span><ol class="qs">${qs.map(t => `<li>${t}</li>`).join("")}</ol></div>
+    </div>`;
+  if (!sample) {
+    const cards = [...$("drawOut").querySelectorAll(".card")];
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    cards.forEach((el, i) => still ? el.classList.add("up") : setTimeout(() => el.classList.add("up"), 250 + i * 450));
+  }
+}
+
+// ===== 事件與啟動 =====
+const SAMPLE_BIRTH = "1990-05-17";
+let birthSample = true;
+function doBirth(sample) {
+  const v = $("bd").value;
+  if (!v) { $("bErr").textContent = "請先填出生日期。"; return; }
+  const [y, m, d] = v.split("-").map(Number);
+  if (y < 1901 || y > 2099) { $("bErr").textContent = "目前支援 1901 到 2099 年出生。"; return; }
+  $("bErr").textContent = "";
+  renderBirth(y, m, d, sample);
+  if (!sample && $("remember").checked) store("tl-birth", v);
+}
+$("birthBtn").addEventListener("click", () => { birthSample = false; doBirth(false); });
+$("remember").addEventListener("change", () => { if (!$("remember").checked) store("tl-birth", undefined); else if (!birthSample && $("bd").value) store("tl-birth", $("bd").value); });
+$("drawBtn").addEventListener("click", () => {
+  const sp = document.querySelector('input[name="spread"]:checked').value;
+  renderDraw(drawCards(SPREADS[sp].length, $("useRev").checked), sp, $("q").value.trim(), false);
+  $("drawHint").textContent = "想再問一次，換個問題或牌陣再抽。";
+});
+
+const saved = load("tl-birth", null);
+$("bd").value = saved || SAMPLE_BIRTH; $("remember").checked = !!saved; birthSample = !saved;
+doBirth(!saved);
+renderDraw([{ c: DECK[17], rev: false }, { c: DECK.find(c => c.id === "cups7"), rev: true }, { c: DECK.find(c => c.id === "pents7"), rev: false }], "time", "要不要在明年初換工作？", true);
+document.querySelector('input[name="spread"][value="time"]').checked = true;
+</script>
+<script>
+// 頁首線束：首頁主視覺的靜止淡色版
+(() => {
+  const cv = document.querySelector(".threads-bg"); if (!cv) return;
+  const ctx = cv.getContext("2d"), COLORS = ["#E8577E", "#F6DD6A", "#3FA4E0"];
+  let seed = 20261029; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const lines = Array.from({ length: 56 }, (_, i) => ({ c: COLORS[i % 3], w: .6 + rnd() * 1.1, a: .22 + rnd() * .28, off: rnd() - .5,
+    spread: .5 + rnd() * .9, f1: 1.2 + rnd() * 2.2, f2: 3 + rnd() * 4, p1: rnd() * 6.28, p2: rnd() * 6.28, amp: (rnd() < .12 ? .7 : .12) + rnd() * .45 }));
+  function draw() {
+    const W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const rise = Math.min(.6, .6 * (W / H) / 3);
+    const center = u => H * (.58 - rise * u), band = u => H * (.05 + .2 * Math.pow(u, 1.3));
+    const steps = Math.max(60, Math.round(W / 10));
+    const path = L => { ctx.beginPath(); for (let s = 0; s <= steps; s++) { const u = s / steps, x = -40 + (W + 80) * u;
+      const wob = L.amp * (Math.sin(u * L.f1 * 3.14 + L.p1) * .6 + Math.sin(u * L.f2 * 3.14 + L.p2) * .4);
+      const y = center(u) + band(u) * (L.off * L.spread + wob * (.35 + u * .65)); s ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } };
+    ctx.clearRect(0, 0, W, H); ctx.lineCap = "round";
+    for (const L of lines) { ctx.strokeStyle = L.c; ctx.globalAlpha = L.a; ctx.lineWidth = L.w; path(L); ctx.stroke(); }
+    ctx.globalAlpha = .55; ctx.strokeStyle = "#1E2A3A"; ctx.lineWidth = 2; path({ off: 0, spread: 0, amp: .18, f1: 1.4, f2: 3.2, p1: 1, p2: 2 }); ctx.stroke();
+  }
+  draw(); addEventListener("resize", draw);
+})();
+</script>
