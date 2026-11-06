@@ -66,7 +66,8 @@ footer { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px; border-top
 @media (max-width: 720px) {
   .top { padding-block: 18px; gap: 12px }
   .brand { font-size: 20px; letter-spacing: .14em }
-  .menu { gap: 4px 12px }
+  .top { flex-wrap: wrap; row-gap: 8px }
+  .menu { margin-left: 0; width: 100%; flex-wrap: nowrap; justify-content: flex-start; gap: 18px; overflow-x: auto; scrollbar-width: none }
   .menu a { font-size: 14px }
   .menu .full { display: none }
   .hero { min-height: 78vh }
@@ -85,6 +86,7 @@ footer { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px; border-top
     <a href="ziwei-mingpan.html"><span class="full">紫微命盤</span><span class="short">紫微</span></a>
     <a href="xingzuo-mingpan.html"><span class="full">星座命盤</span><span class="short">星座</span></a>
     <a href="renleitu.html"><span class="full">人類圖</span><span class="short">人類圖</span></a>
+    <a href="taluo.html"><span class="full">塔羅</span><span class="short">塔羅</span></a>
     <a href="wuxing-wengua.html"><span class="full">五行問卦</span><span class="short">問卦</span></a>
     <a href="shuangren-hepan.html"><span class="full">雙人合盤</span><span class="short">雙人合盤</span></a>
   </nav>
@@ -117,6 +119,10 @@ footer { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px; border-top
             <span class="ln"></span><h3>人類圖</h3>
             <p>看你的類型、策略、內在權威和人生角色，知道自己天生怎麼做決定、和世界互動。</p><span class="go">畫出人類圖</span>
           </a>
+          <a class="card" href="taluo.html#birth" style="--c:var(--deep)">
+            <span class="ln"></span><h3>塔羅生日牌</h3>
+            <p>用出生日期算出你的人格牌和靈魂牌，看這一生帶著的主題。</p><span class="go">算出生日牌</span>
+          </a>
         </div>
       </section>
       <section class="group" aria-labelledby="g2">
@@ -125,6 +131,10 @@ footer { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px; border-top
           <a class="card" href="wuxing-wengua.html" style="--c:var(--pink)">
             <span class="ln"></span><h3>五行問卦</h3>
             <p>心裡有一件事，先用生辰看你的底色，再擲六次硬幣起一卦，看這件事對你是補，還是耗。</p><span class="go">開始問卦</span>
+          </a>
+          <a class="card" href="taluo.html#draw" style="--c:var(--blue)">
+            <span class="ln"></span><h3>塔羅抽牌</h3>
+            <p>帶著一個問題抽一張或三張牌，看看此刻的你需要聽見什麼。</p><span class="go">洗牌抽牌</span>
           </a>
         </div>
       </section>
