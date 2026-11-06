@@ -1,0 +1,632 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>命盤總覽</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* 版面：上方輸入一次生辰；接著是「好幾個系統都說你」的共同主題；下方五張卡片並排，各系統一句重點，再點進完整頁面 */
+/* 配色：和首頁一致的近白底、炭黑字；五個系統各用首頁線束的一個顏色當識別，固定淺色 */
+:root {
+  --paper: #FAFAF8; --surface: #FFFFFF; --ink: #2B2B2B; --muted: #666663; --rule: #E2E2DE;
+  --accent: #2C6B5E; --accent-soft: #E1ECE8; --mark: #B0432D;
+  --s-bazi: #3B7A4C; --s-ziwei: #8A4FA0; --s-star: #3FA4E0; --s-hd: #D4A72C; --s-tarot: #E8577E;
+  --wood: #3B7A4C; --fire: #B5432D; --earth: #9A7426; --metal: #6F757E; --water: #2C5888;
+  --f-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px }
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 28px }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.3 }
+p { margin: 0 }
+.label { font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 500 }
+.hint { font-size: 13px; color: var(--muted) }
+.sample-tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: .08em }
+
+header { display: grid; gap: 8px }
+header h1 { font-size: clamp(32px, 7vw, 44px); font-weight: 900; letter-spacing: .04em }
+header p { color: var(--muted); max-width: 36em }
+
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 16px; min-width: 0 }
+.sec-h { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between }
+.sec-h h2 { font-size: 22px }
+
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px }
+.form > div { display: grid; gap: 4px; min-width: 0; align-content: start }
+input[type="text"], input[type="date"], select {
+  font: inherit; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); width: 100% }
+input:focus-visible, button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+select:disabled { opacity: .5 }
+.time24 { display: flex; align-items: center; gap: 6px }
+.time24 select { flex: 1; min-width: 0 }
+.seg { display: flex; gap: 8px }
+.seg label { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); cursor: pointer }
+.seg label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 500 }
+.seg input { accent-color: var(--accent) }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted) }
+.checks label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center }
+button { font: inherit; font-weight: 500; border-radius: 4px; padding: 10px 24px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface) }
+.err { color: var(--mark); font-size: 14px }
+
+/* 共同主題 */
+.themes { display: grid; gap: 14px }
+.theme { display: grid; gap: 6px; align-content: start; padding: 16px; border-radius: 6px; background: var(--paper); border: 1px solid var(--rule); min-width: 0 }
+.theme .rank { font-size: 12px; letter-spacing: .14em; color: var(--muted) }
+.theme b { font-family: var(--f-display); font-weight: 900; font-size: clamp(26px, 4.6vw, 34px); line-height: 1.2 }
+.theme p { font-size: 14px }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.chip { font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--c); color: var(--c); white-space: nowrap }
+.lede { font-size: 15px }
+
+/* 系統卡片 */
+.systems { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px }
+.sys { display: grid; gap: 8px; align-content: start; padding: 18px; border-radius: 6px; background: var(--surface); border: 1px solid var(--rule); border-top: 4px solid var(--c); min-width: 0 }
+.sys .name { font-size: 13px; letter-spacing: .14em; color: var(--c); font-weight: 700 }
+.sys b { font-family: var(--f-display); font-weight: 900; font-size: clamp(20px, 3.4vw, 26px); line-height: 1.3 }
+.sys p { font-size: 14px; color: var(--muted) }
+.sys .more { justify-self: start; font-size: 14px; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: .06em; margin-top: 4px }
+.sys .more::after { content: " ›››" }
+.sys .more:hover { text-decoration: underline }
+.sys.na b { color: var(--muted); font-size: 18px }
+.sys .tags { display: flex; flex-wrap: wrap; gap: 6px }
+.sys .tags span { font-size: 12px; padding: 0 8px; border-radius: 3px; background: var(--paper); color: var(--muted) }
+.note { font-size: 13px; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 12px }
+
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px }
+
+@media (max-width: 640px) {
+  .form, .systems { grid-template-columns: 1fr }
+  .themes { grid-template-columns: 1fr !important }
+}
+
+/* 網站導覽列：固定在頂端，左邊回首頁，右邊切換工具 */
+.sitebar { position: fixed; inset: 0 0 auto; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--rule);
+  padding-top: env(safe-area-inset-top, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.sitebar .in { max-width: 880px; margin: 0 auto; height: 54px; display: flex; align-items: center; gap: 12px }
+.sitebar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; padding: 6px 12px 6px 8px; margin-left: -8px; border-radius: 999px }
+.sitebar .brand:hover { background: var(--paper) }
+.sitebar .brand .ar { font-size: 18px; line-height: 1 }
+.sitebar .brand b { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; font-weight: 700; font-size: 18px; letter-spacing: .18em }
+.sitebar .brand b i { font-style: normal; color: #B0432D }
+.sitebar nav { margin-left: auto; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none }
+.sitebar nav a { padding: 6px 12px; font-size: 14px; color: var(--muted); text-decoration: none; border-radius: 999px; white-space: nowrap }
+.sitebar nav a:hover { color: var(--ink) }
+.sitebar nav a[aria-current="page"] { color: var(--surface); background: var(--ink) }
+.sitebar a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px }
+body { padding-top: calc(54px + 28px + env(safe-area-inset-top, 0px)) }
+@media (max-width: 480px) {
+  .sitebar .in { gap: 4px }
+  .sitebar .brand { padding-right: 8px }
+  .sitebar .brand b { font-size: 16px; letter-spacing: .1em }
+  .sitebar nav a { padding: 6px 7px; font-size: 13px }
+  .sitebar .brand .ar { display: none }
+}
+
+/* 頁首線束：和首頁主視覺同一組顏色，靜止、較淡，往下淡出，只當頁首背景 */
+.threads-bg { position: absolute; left: 0; right: 0; top: calc(54px + env(safe-area-inset-top, 0px)); height: 190px; width: 100%; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent); mask-image: linear-gradient(to bottom, #000 65%, transparent) }
+.wrap { position: relative; z-index: 1 }
+</style>
+
+<div class="sitebar"><div class="in">
+  <a class="brand" href="./" aria-label="回首頁：掌上命珠"><span class="ar" aria-hidden="true">←</span><b>掌上命<i>珠</i></b></a>
+  <nav aria-label="工具"><a href="zonglan.html" aria-current="page">總覽</a><a href="ziwei-mingpan.html">紫微</a><a href="xingzuo-mingpan.html">星座</a><a href="renleitu.html">人類圖</a><a href="taluo.html">塔羅</a><a href="wuxing-wengua.html">問卦</a><a href="shuangren-hepan.html">雙人合盤</a></nav>
+</div></div>
+<script>document.querySelector(".sitebar nav [aria-current]")?.scrollIntoView({ block: "nearest", inline: "center" });</script>
+<canvas class="threads-bg" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header>
+    <span class="label">八字 × 紫微 × 星座 × 人類圖 × 塔羅</span>
+    <h1>命盤總覽</h1>
+    <p>輸入一次生辰，一頁看完你在五個系統裡的樣子。<br>不同的系統用不同的語言，當它們說到同一件事，那多半就是你。</p>
+  </header>
+
+  <section class="panel" aria-labelledby="in-h">
+    <div class="sec-h"><h2 id="in-h">出生資料</h2><span class="sample-tag" id="sampleTag">範例生辰</span></div>
+    <div class="form">
+      <div><label for="nm" class="label">姓名（可留空）</label><input id="nm" type="text" maxlength="12" placeholder="例如：小明"></div>
+      <div><span class="label" id="sex-l">性別（紫微和八宅命卦會用到）</span>
+        <div class="seg" role="radiogroup" aria-labelledby="sex-l">
+          <label><input type="radio" name="sex" id="sexF" value="女" checked> 女</label>
+          <label><input type="radio" name="sex" id="sexM" value="男"> 男</label>
+        </div></div>
+      <div><label for="bd" class="label">出生日期（國曆）</label><input id="bd" type="date" min="1901-01-01" max="2099-12-31"></div>
+      <div><label for="btH" class="label">出生時間（24 小時制）</label>
+        <div class="time24"><select id="btH" aria-label="時"></select><span aria-hidden="true">:</span><select id="btM" aria-label="分"></select></div></div>
+      <div><label for="city" class="label">出生地</label><select id="city"></select></div>
+    </div>
+    <div class="checks">
+      <label><input id="noTime" type="checkbox"> 不知道出生時間</label>
+      <label><input id="remember" type="checkbox"> 記住在這台裝置</label>
+    </div>
+    <div class="btns"><button id="calcBtn">一次看完</button><span class="err" id="err" aria-live="polite"></span></div>
+  </section>
+
+  <div id="out" style="display:grid;gap:28px" aria-live="polite"></div>
+
+  <footer>
+    <p>各系統的算法和完整頁面相同：八字以當地時間排，紫微用 iztro，星座和人類圖用 astronomy-engine，塔羅生日牌依出生年月日加總。</p>
+    <p>共同主題是本站把各系統的重點對應到十個主題詞，再看哪些主題在越多系統裡出現。這是幫你整理的角度，不是定論。</p>
+    <p>這是一個認識自己的反思工具，不做預測，也不取代專業意見。</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js" integrity="sha384-LTVHvxfbG3XHla4Lu0C0s9U18B2sBOuzJIeOoVHm2t05SOOORvMbBMEVjXrGau9g" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/iztro@2.6.2/dist/iztro.min.js" integrity="sha384-gnIHuvFQ6f6S4enOcdHwk8Kun3vDV3n1UntMc14f9hlAMKpOQ0e1QkO6rJnB9ZnV" crossorigin="anonymous"></script>
+<script>
+// ===== 共用 =====
+const $ = id => document.getElementById(id);
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function store(k, v) { try { v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function load(k, d) { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : d; } catch (e) { return d; } }
+const pad2 = n => String(n).padStart(2, "0");
+const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+const norm = x => ((x % 360) + 360) % 360;
+const ROMAN = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI"];
+
+// ===== 地點與時區 =====
+const CITIES = [
+  ["台灣", [["台北", 25.033, 121.565], ["新北", 25.012, 121.465], ["基隆", 25.128, 121.741], ["桃園", 24.993, 121.301], ["新竹", 24.804, 120.971],
+    ["苗栗", 24.560, 120.821], ["台中", 24.148, 120.674], ["彰化", 24.081, 120.538], ["南投", 23.910, 120.684], ["雲林", 23.711, 120.541],
+    ["嘉義", 23.480, 120.449], ["台南", 22.999, 120.227], ["高雄", 22.627, 120.301], ["屏東", 22.672, 120.488], ["宜蘭", 24.757, 121.753],
+    ["花蓮", 23.977, 121.604], ["台東", 22.756, 121.144], ["澎湖", 23.566, 119.586], ["金門", 24.436, 118.318], ["馬祖", 26.160, 119.950]].map(c => [...c, "Asia/Taipei"])],
+  ["亞洲", [["香港", 22.320, 114.170, "Asia/Hong_Kong"], ["澳門", 22.199, 113.544, "Asia/Macau"], ["北京", 39.904, 116.407, "Asia/Shanghai"],
+    ["上海", 31.230, 121.474, "Asia/Shanghai"], ["廣州", 23.129, 113.264, "Asia/Shanghai"], ["深圳", 22.543, 114.058, "Asia/Shanghai"],
+    ["廈門", 24.480, 118.089, "Asia/Shanghai"], ["新加坡", 1.352, 103.820, "Asia/Singapore"], ["吉隆坡", 3.139, 101.687, "Asia/Kuala_Lumpur"],
+    ["曼谷", 13.756, 100.502, "Asia/Bangkok"], ["馬尼拉", 14.599, 120.984, "Asia/Manila"], ["雅加達", -6.208, 106.846, "Asia/Jakarta"],
+    ["東京", 35.676, 139.650, "Asia/Tokyo"], ["首爾", 37.566, 126.978, "Asia/Seoul"]]],
+  ["其他地區", [["雪梨", -33.869, 151.209, "Australia/Sydney"], ["墨爾本", -37.814, 144.963, "Australia/Melbourne"], ["奧克蘭", -36.849, 174.763, "Pacific/Auckland"],
+    ["倫敦", 51.507, -0.128, "Europe/London"], ["巴黎", 48.857, 2.352, "Europe/Paris"], ["柏林", 52.520, 13.405, "Europe/Berlin"],
+    ["紐約", 40.713, -74.006, "America/New_York"], ["多倫多", 43.653, -79.383, "America/Toronto"], ["洛杉磯", 34.052, -118.244, "America/Los_Angeles"],
+    ["舊金山", 37.775, -122.419, "America/Los_Angeles"], ["西雅圖", 47.606, -122.332, "America/Los_Angeles"], ["溫哥華", 49.283, -123.121, "America/Vancouver"]]]
+];
+const CITY_BY = {};
+CITIES.forEach(([, list]) => list.forEach(c => { CITY_BY[c[0]] = c; }));
+function zoneOffsetMin(zone, ms) {
+  const p = new Intl.DateTimeFormat("en-US", { timeZone: zone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" })
+    .formatToParts(new Date(ms)).reduce((o, x) => (o[x.type] = x.value, o), {});
+  return (Date.UTC(+p.year, p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second) - ms) / 60000;
+}
+function localToUtc(y, mo, d, h, mi, zone) {
+  const wall = Date.UTC(y, mo - 1, d, h, mi);
+  const ms = wall - zoneOffsetMin(zone, wall) * 60000;
+  return wall - zoneOffsetMin(zone, ms) * 60000;
+}
+
+// ===== 人類圖資料 =====
+// 從 41 號閘門（302°，水瓶座 2 度）起，沿黃道排列的 64 個閘門
+const WHEEL = [41, 19, 13, 49, 30, 55, 37, 63, 22, 36, 25, 17, 21, 51, 42, 3, 27, 24, 2, 23, 8, 20, 16, 35, 45, 12, 15, 52, 39, 53, 62, 56,
+  31, 33, 7, 4, 29, 59, 40, 64, 47, 6, 46, 18, 48, 57, 32, 50, 28, 44, 1, 43, 14, 34, 9, 5, 26, 11, 10, 58, 38, 54, 61, 60];
+const HEX = ["", "乾", "坤", "屯", "蒙", "需", "訟", "師", "比", "小畜", "履", "泰", "否", "同人", "大有", "謙", "豫", "隨", "蠱", "臨", "觀", "噬嗑", "賁", "剝", "復",
+  "无妄", "大畜", "頤", "大過", "坎", "離", "咸", "恆", "遯", "大壯", "晉", "明夷", "家人", "睽", "蹇", "解", "損", "益", "夬", "姤", "萃", "升", "困", "井", "革", "鼎",
+  "震", "艮", "漸", "歸妹", "豐", "旅", "巽", "兌", "渙", "節", "中孚", "小過", "既濟", "未濟"];
+const CENTERS = {
+  head: ["頭頂中心", [64, 61, 63], "--c-yellow", "靈感，和想弄懂事情的壓力", "有固定在想的主題，靈感來源穩定。", "容易被別人的問題吸引，分辨哪些疑問其實不是你的。"],
+  ajna: ["邏輯中心", [47, 24, 4, 17, 43, 11], "--c-sage", "思考、分析和整理想法", "想事情有自己固定的方式，觀點清楚。", "能從很多角度看事情，不必急著把答案定下來。"],
+  throat: ["喉嚨中心", [62, 23, 56, 35, 12, 45, 33, 8, 31, 20, 16], "--c-sand", "表達與行動的出口", "說話和表達的方式穩定，容易被聽見。", "不必搶著開口，在被邀請或時機對時說，效果最好。"],
+  g: ["自我中心", [1, 13, 25, 46, 2, 15, 10, 7], "--c-yellow", "身分、方向和愛", "對自己是誰、要往哪去比較有方向感。", "在對的地方遇到對的人很重要，環境會帶你找到方向。"],
+  heart: ["意志力中心", [21, 40, 26, 51], "--c-pink", "意志力、承諾和價值感", "說到做到，有穩定的意志力。", "不需要證明自己有多好，也不必輕易許下承諾。"],
+  spleen: ["直覺中心", [48, 57, 44, 50, 32, 28, 18], "--c-sand", "直覺、健康和安全感", "身體和直覺比較穩定，當下的判斷可以信任。", "對身心狀態很敏感，學會放下讓你不舒服的人事物。"],
+  solar: ["情緒中心", [6, 37, 22, 36, 30, 55, 49], "--c-sand", "情緒、感受和渴望", "情緒有自己的起伏週期，等平穩了再做決定。", "容易感受到別人的情緒，不用把別人的情緒當成自己的。"],
+  sacral: ["薦骨中心", [34, 5, 14, 29, 59, 9, 3, 42, 27], "--c-pink", "生命力、工作力和性能量", "有持續的生命力，做喜歡的事會越做越有精神。", "不要用別人的體力標準要求自己，累了就休息。"],
+  root: ["根部中心", [53, 60, 52, 19, 39, 41, 58, 38, 54], "--c-sand", "壓力和推動事情的動力", "能穩定地處理壓力，按自己的節奏推進。", "容易被壓力推著走，不必急著把每件事做完。"]
+};
+const GATE_CENTER = {};
+Object.entries(CENTERS).forEach(([k, c]) => c[1].forEach(g => { GATE_CENTER[g] = k; }));
+const CHANNELS = [
+  [64, 47, "抽象", "從零散的畫面裡理出意義"], [61, 24, "覺察", "反覆思索，直到真正想通"], [63, 4, "邏輯", "提出疑問，再找出答案"],
+  [17, 62, "接受", "整理意見，把細節說清楚"], [43, 23, "架構", "把獨到的洞見說出來"], [11, 56, "好奇", "把想法變成好聽的故事"],
+  [31, 7, "創始", "帶著眾人往前走"], [8, 1, "啟發", "用獨特的方式表達自己"], [33, 13, "浪子", "收集經歷，回顧後分享"], [20, 10, "覺醒", "活出真實的自己"],
+  [45, 21, "金錢", "掌管資源，照顧群體"], [12, 22, "開放", "用情緒感染人的表達"], [35, 36, "無常", "想體驗各種新事物"],
+  [16, 48, "才華", "靠練習磨出深度"], [20, 57, "腦波", "當下的直覺洞察"], [20, 34, "魅力", "忙碌又有效率地行動"],
+  [25, 51, "發起", "勇於面對未知"], [15, 5, "韻律", "跟著自然節奏過生活"], [2, 14, "節拍", "知道方向，也有資源走過去"], [46, 29, "發現", "全心投入，從經驗中學習"],
+  [10, 34, "探索", "照自己的信念行動"], [10, 57, "完美形式", "靠直覺活出自己"], [26, 44, "傳承", "看懂過去的模式，把經驗傳下去"], [37, 40, "社群", "在群體裡付出，也被照顧"],
+  [27, 50, "保存", "照顧與守護"], [34, 57, "力量", "本能的求生力量"], [59, 6, "親密", "和人建立親近的關係"],
+  [42, 53, "成熟", "開始了就想好好完成"], [3, 60, "突變", "在限制中帶來新東西"], [9, 52, "專注", "能長時間專心"],
+  [32, 54, "蛻變", "有企圖心，想往上爬"], [28, 38, "掙扎", "為有意義的事奮鬥"], [18, 58, "批評", "想把事情改得更好"],
+  [19, 49, "整合", "在意歸屬和彼此的需要"], [39, 55, "情緒", "在情緒起伏裡帶來靈感"], [41, 30, "夢想家", "對新經驗的渴望"]
+];
+const PLANETS = [["Sun", "太陽", "☉"], ["Earth", "地球", "⊕"], ["NorthNode", "北交點", "☊"], ["SouthNode", "南交點", "☋"], ["Moon", "月亮", "☽"],
+  ["Mercury", "水星", "☿"], ["Venus", "金星", "♀"], ["Mars", "火星", "♂"], ["Jupiter", "木星", "♃"], ["Saturn", "土星", "♄"], ["Uranus", "天王星", "♅"],
+  ["Neptune", "海王星", "♆"], ["Pluto", "冥王星", "♇"]];
+const TYPES = {
+  生產者: ["等待回應", "挫折", "滿足", "有穩定持久的生命力，做喜歡的事能一直充電。不急著主動出擊，等生活裡出現的人事物，再用身體當下的感覺回應要不要。"],
+  顯示生產者: ["等待回應，行動前先告知", "挫折和生氣", "滿足和平靜", "有生產者的持久能量，又做得快、能同時處理好幾件事。先等回應再行動，動之前跟身邊的人說一聲，可以少很多阻力。"],
+  投射者: ["等待邀請", "苦澀", "成功", "很會看懂人和系統，適合引導、協調別人。能量不是持續型的，要懂得休息；在被看見、被邀請的時候最能發揮。"],
+  顯示者: ["行動前先告知", "憤怒", "平靜", "能主動發起、開創新局，不需要等別人。行動前先告知受影響的人，可以減少誤會和阻力。"],
+  反映者: ["等待一個月亮週期（約 28 天）", "失望", "驚喜", "九個中心都開放，像一面鏡子，反映出環境和身邊的人。環境對你特別重要，重大決定給自己一個月慢慢感受。"]
+};
+const AUTH = {
+  情緒權威: "情緒像波浪，有高有低。不要在最興奮或最低落時做決定，等心情平穩了，答案會比較清楚。",
+  薦骨權威: "聽身體當下的反應。對一件事有沒有熱情、身體想不想靠近，就是答案。",
+  直覺權威: "直覺在當下一閃而過，通常只說一次。第一時間的感覺，往往是對的。",
+  意志力權威: "問自己：我真的想要嗎？我願意為它付出嗎？心裡真正願意的，才答應。",
+  自我投射權威: "把想法說出來，聽聽自己說話的方向和語氣，答案就在你說出口的話裡。",
+  環境權威: "沒有固定的內在權威。找信任的人聊聊，在對的環境裡把想法說出來，答案會慢慢清楚。",
+  月亮權威: "給自己一個月亮週期（約 28 天），在不同的日子感受同一件事，再做決定。"
+};
+const LINES = [, ["研究者", "需要把基礎研究清楚才安心"], ["隱士", "有天生的才華，也需要獨處的時間"], ["實驗者", "從嘗試和犯錯中學到真東西"],
+  ["人脈者", "機會常常來自身邊的朋友和人脈"], ["引領者", "別人容易對你有期待，擅長在關鍵時刻解決問題"], ["典範", "年輕時多體驗，中年沉澱，後來成為別人的榜樣"]];
+const DEFS = { 0: ["無定義", "九個中心都開放，最能感受環境。"], 1: ["一分人", "所有有定義的中心連成一片，想事情和做決定比較獨立、完整。"],
+  2: ["二分人", "定義分成兩塊，容易被能幫你接上這兩塊的人吸引，做決定時多給自己一點時間。"],
+  3: ["三分人", "定義分成三塊，需要在不同的人和環境之間走動，才能把自己串起來。"], 4: ["四分人", "定義分成四塊，比較少見，做決定需要更長的時間。"] };
+
+// ===== 計算 =====
+function eclLonOf(body, t, rot) {
+  return norm(Astronomy.SphereFromVector(Astronomy.RotateVector(rot, Astronomy.GeoVector(Astronomy.Body[body], t, true))).lon);
+}
+function sunLon(ms) { const t = Astronomy.MakeTime(new Date(ms)); return eclLonOf("Sun", t, Astronomy.Rotation_EQJ_ECT(t)); }
+// 真交點：月球瞬時軌道面和黃道的交點（同 Swiss Ephemeris 的 TRUE_NODE）
+function trueNode(t) {
+  const s = Astronomy.GeoMoonState(t), rot = Astronomy.Rotation_EQJ_ECT(t);
+  const r = Astronomy.RotateVector(rot, new Astronomy.Vector(s.x, s.y, s.z, t));
+  const v = Astronomy.RotateVector(rot, new Astronomy.Vector(s.vx, s.vy, s.vz, t));
+  return norm(Math.atan2(r.y * v.z - r.z * v.y, -(r.z * v.x - r.x * v.z)) * R2D);
+}
+function positions(ms) {
+  const t = Astronomy.MakeTime(new Date(ms)), rot = Astronomy.Rotation_EQJ_ECT(t), o = {};
+  ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"].forEach(k => { o[k] = eclLonOf(k, t, rot); });
+  o.Earth = norm(o.Sun + 180); o.NorthNode = trueNode(t); o.SouthNode = norm(o.NorthNode + 180);
+  return o;
+}
+// 設計時間：太陽比出生時倒退 88 度的那一刻
+function designTime(birthMs) {
+  const target = norm(sunLon(birthMs) - 88);
+  const f = ms => { const d = norm(sunLon(ms) - target); return d > 180 ? d - 360 : d; };
+  let lo = birthMs - 96 * 864e5, hi = birthMs - 82 * 864e5;
+  for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (f(mid) > 0) hi = mid; else lo = mid; }
+  return (lo + hi) / 2;
+}
+function gateLine(lon) {
+  const x = norm(lon - 302), i = Math.floor(x / 5.625);
+  return { gate: WHEEL[i % 64], line: Math.min(6, Math.floor((x - i * 5.625) / 0.9375) + 1), lon };
+}
+function hd(birthMs) {
+  const dMs = designTime(birthMs);
+  const P = positions(birthMs), D = positions(dMs);
+  const pers = {}, des = {};
+  PLANETS.forEach(([k]) => { pers[k] = gateLine(P[k]); des[k] = gateLine(D[k]); });
+  const active = new Map(); // 閘門 → { p, d }
+  const mark = (acts, who) => Object.values(acts).forEach(a => { const m = active.get(a.gate) || {}; m[who] = true; active.set(a.gate, m); });
+  mark(pers, "p"); mark(des, "d");
+  const channels = CHANNELS.filter(([a, b]) => active.has(a) && active.has(b));
+  const defined = new Set(channels.flatMap(([a, b]) => [GATE_CENTER[a], GATE_CENTER[b]]));
+  const adj = {};
+  channels.forEach(([a, b]) => { const x = GATE_CENTER[a], y = GATE_CENTER[b]; (adj[x] = adj[x] || new Set()).add(y); (adj[y] = adj[y] || new Set()).add(x); });
+  const reach = (from, targets) => { const seen = new Set([from]), q = [from]; while (q.length) { const c = q.shift(); if (targets.includes(c) && c !== from) return true; (adj[c] || []).forEach(n => { if (!seen.has(n)) { seen.add(n); q.push(n); } }); } return false; };
+  const motorToThroat = defined.has("throat") && reach("throat", ["heart", "solar", "root", "sacral"]);
+  let type;
+  if (!defined.size) type = "反映者";
+  else if (defined.has("sacral")) type = motorToThroat ? "顯示生產者" : "生產者";
+  else type = motorToThroat ? "顯示者" : "投射者";
+  let auth;
+  if (defined.has("solar")) auth = "情緒權威";
+  else if (defined.has("sacral")) auth = "薦骨權威";
+  else if (defined.has("spleen")) auth = "直覺權威";
+  else if (defined.has("heart")) auth = "意志力權威";
+  else if (defined.has("g")) auth = "自我投射權威";
+  else if (!defined.size) auth = "月亮權威";
+  else auth = "環境權威";
+  // 定義的分塊數
+  const seen = new Set(); let parts = 0;
+  defined.forEach(c => { if (seen.has(c)) return; parts++; const q = [c]; seen.add(c); while (q.length) { const x = q.shift(); (adj[x] || []).forEach(n => { if (!seen.has(n)) { seen.add(n); q.push(n); } }); } });
+  const profile = [pers.Sun.line, des.Sun.line];
+  return { birthMs, dMs, pers, des, active, channels, defined, type, auth, parts, profile };
+}
+
+// ===== 五行、八字 =====
+const STEMS = "甲乙丙丁戊己庚辛壬癸", BRANCHES = "子丑寅卯辰巳午未申酉戌亥", ZODIAC = "鼠牛虎兔龍蛇馬羊猴雞狗豬";
+const STEM_EL = ["木", "木", "火", "火", "土", "土", "金", "金", "水", "水"];
+const BR_EL = ["水", "土", "木", "木", "土", "火", "火", "土", "金", "金", "土", "水"];
+const ELS = ["木", "火", "土", "金", "水"];
+const EL_VAR = { 木: "--wood", 火: "--fire", 土: "--earth", 金: "--metal", 水: "--water" };
+const GEN = { 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" };
+const KE = { 木: "土", 土: "水", 水: "火", 火: "金", 金: "木" };
+
+function sunLongitude(jd) {
+  const T = (jd - 2451545.0) / 36525, r = Math.PI / 180;
+  const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+  const M = (357.52911 + 35999.05029 * T - 0.0001537 * T * T) * r;
+  const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M) + (0.019993 - 0.000101 * T) * Math.sin(2 * M) + 0.000289 * Math.sin(3 * M);
+  const om = (125.04 - 1934.136 * T) * r;
+  return norm(L0 + C - 0.00569 - 0.00478 * Math.sin(om));
+}
+// y, m, d, hh 為出生地的當地時間（hh 可為 null）；utcMs 是同一刻的 UTC，用來判斷節氣
+function bazi(y, m, d, hh, utcMs) {
+  const hasTime = hh !== null;
+  const lam = sunLongitude(utcMs / 86400000 + 2440587.5);
+  const mIdx = Math.floor((((lam - 315) % 360 + 360) % 360) / 30); // 0 = 寅月
+  let yy = y;
+  if (m <= 2 && mIdx >= 10) yy = y - 1; // 立春前算前一年
+  const yS = ((yy - 4) % 10 + 10) % 10, yB = ((yy - 4) % 12 + 12) % 12;
+  const mB = (mIdx + 2) % 12, mS = ((yS % 5) * 2 + 2 + mIdx) % 10;
+  const dayMs = Date.UTC(y, m - 1, d) + (hasTime && hh >= 23 ? 86400000 : 0); // 23:00 後算隔日
+  const jdn = Math.round(dayMs / 86400000 + 2440587.5 + 0.5);
+  const dIdx = ((jdn + 49) % 60 + 60) % 60;
+  const dS = dIdx % 10, dB = dIdx % 12;
+  let hour = null;
+  if (hasTime) { const hB = Math.floor((hh + 1) / 2) % 12; hour = [((dS % 5) * 2 + hB) % 10, hB]; }
+  return { year: [yS, yB], month: [mS, mB], day: [dS, dB], hour, solarYear: yy };
+}
+function analyze(bz) {
+  const cnt = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+  const add = (p, wB) => { cnt[STEM_EL[p[0]]] += 1; cnt[BR_EL[p[1]]] += wB; };
+  add(bz.year, 1); add(bz.month, 2); add(bz.day, 1); if (bz.hour) add(bz.hour, 1);
+  const dm = STEM_EL[bz.day[0]];
+  const mother = Object.keys(GEN).find(k => GEN[k] === dm);
+  const total = Object.values(cnt).reduce((a, b) => a + b, 0);
+  const ratio = (cnt[dm] + cnt[mother]) / total;
+  const strength = ratio >= 0.56 ? "偏強" : ratio <= 0.44 ? "偏弱" : "中和";
+  // 簡化的喜用：偏弱要生扶（印、比劫），偏強要宣洩與制衡（食傷、財、官殺）
+  const needs = strength === "偏弱" ? [mother, dm] : strength === "偏強" ? [GEN[dm], KE[dm], Object.keys(KE).find(k => KE[k] === dm)] : [];
+  return { cnt, total, dm, mother, strength, needs };
+}
+
+// ===== 八宅命卦 =====
+// 三爻編碼：下爻 1、中爻 2、上爻 4
+const TRI = { 1: ["坎", 2, "水"], 2: ["坤", 0, "地"], 3: ["震", 1, "雷"], 4: ["巽", 6, "風"], 6: ["乾", 7, "天"], 7: ["兌", 3, "澤"], 8: ["艮", 4, "山"], 9: ["離", 5, "火"] };
+function kua(solarYear, sex) {
+  let n = sex === "男" ? (11 - solarYear % 9) % 9 : (solarYear % 9 + 4) % 9;
+  if (n === 0) n = 9;
+  if (n === 5) n = sex === "男" ? 2 : 8;
+  return { n, name: TRI[n][0], code: TRI[n][1], img: TRI[n][2], group: [1, 3, 4, 9].includes(n) ? "東四命" : "西四命" };
+}
+// 兩個命卦相差哪幾爻，就是八宅遊年的哪一顆星
+const YOUNIAN = {
+  4: ["生氣", "comp", "彼此激勵，在一起比較有活力和衝勁"], 7: ["延年", "comp", "穩定、長久，傳統上最看重的組合"],
+  3: ["天醫", "comp", "互相照顧，對方在身邊時比較安心"], 0: ["伏位", "sim", "命卦相同，像同類，步調和喜好很接近"],
+  1: ["禍害", "fric", "小事上容易有口角，要留意說話的語氣"], 5: ["六煞", "fric", "想法容易岔開，常常要多溝通一次"],
+  6: ["五鬼", "fric", "情緒起伏時容易擦槍走火，需要給彼此空間"], 2: ["絕命", "fric", "節奏差異最大，需要更多用心和耐心經營"]
+};
+
+// ===== 牌 =====
+// 大牌：[名稱, 正位關鍵字, 正位說明, 逆位關鍵字, 當作生日牌時的說明]
+const MAJOR = [
+  ["愚者", "自由、新的開始", "放下包袱，帶著好奇跳進未知。現在適合嘗試，不必等到萬事俱備。", "衝動、逃避責任", "自由、好奇，願意跳進未知。這一生的課題是在冒險和責任之間找到平衡。"],
+  ["魔術師", "行動、資源到位", "你手上已經有需要的工具，關鍵是開始動手，把想法變成現實。", "空想、用錯力氣", "有行動力和溝通力，想到就能動手做。課題是專注在一件事上，把它做到底。"],
+  ["女祭司", "直覺、靜觀", "答案不在外面，在你安靜下來時的直覺裡。先觀察，不急著行動。", "忽略直覺、想太多", "直覺敏銳、內斂，看得到表面底下的東西。課題是信任自己內在的聲音。"],
+  ["皇后", "豐盛、滋養", "用溫柔和耐心照顧這件事，它會慢慢長大。也別忘了照顧自己。", "過度付出、停滯", "溫暖、有創造力，擅長滋養人和事。課題是在照顧別人時，也好好照顧自己。"],
+  ["皇帝", "秩序、責任", "需要建立規則和結構，拿出主導權，為結果負責。", "控制、僵化", "重視秩序和責任，能建立穩定的結構。課題是在掌控和彈性之間找到平衡。"],
+  ["教皇", "信念、學習、傳統", "向有經驗的人請教，或回到你相信的價值，會找到方向。", "教條、盲從", "重視信念和傳承，樂於學習也樂於教人。課題是找到真正屬於自己的信仰。"],
+  ["戀人", "選擇、真心", "這是一個關於選擇的時刻，選那個讓你忠於自己的。", "猶豫、價值衝突", "重視關係和真心相待。課題是做出忠於自己的選擇，而不只是討人喜歡。"],
+  ["戰車", "意志、前進", "目標清楚，就專心往前衝。把相反的力量都收攏到同一個方向。", "失控、方向分散", "意志堅定、目標明確，能克服阻礙。課題是駕馭內心兩股相反的力量。"],
+  ["力量", "溫柔的堅定", "用耐心和溫柔，而不是蠻力，化解眼前的難題。", "自我懷疑、壓抑", "溫柔而堅定，能用耐心化解衝突。課題是溫和地面對自己的本能和情緒。"],
+  ["隱者", "獨處、內省", "退一步，給自己安靜的時間，答案會在獨處中浮現。", "孤立、逃避人群", "喜歡獨處和思考，追求內在的智慧。課題是把自己找到的光，分享給需要的人。"],
+  ["命運之輪", "轉變、時機", "局勢正在轉動，順著變化走，抓住來到眼前的時機。", "抗拒改變、時機未到", "人生常有轉折，能適應變化。課題是在起起落落中看見循環，不被一時的好壞困住。"],
+  ["正義", "公平、因果", "誠實面對事實，做出公平的判斷，並承擔選擇的後果。", "偏頗、逃避後果", "重視公平、講道理。課題是為自己的每一個選擇負責。"],
+  ["吊人", "換個角度、暫停", "事情卡住時，先停下來換個角度看，等待也是一種前進。", "白白犧牲、拖延", "願意換個角度看事情，懂得等待。課題是分辨什麼是犧牲、什麼是真正的放下。"],
+  ["死神", "結束、蛻變", "某件事走到了終點。放手讓它結束，才有空間迎接新的開始。", "抗拒結束、停滯", "生命中常有蛻變，能結束舊的、迎接新的。課題是不害怕結束。"],
+  ["節制", "調和、平衡", "找到中間點，把不同的元素慢慢調和在一起，不走極端。", "失衡、過度", "擅長調和、找到中間點。課題是在兩個極端之間保持平衡。"],
+  ["惡魔", "慾望、束縛", "看看是什麼讓你放不下：一個習慣、一段關係，還是一種恐懼？", "掙脫、看清束縛", "有強烈的慾望和魅力。課題是看見讓自己被綁住的是什麼，並且選擇鬆開它。"],
+  ["高塔", "突變、打破", "原本的結構正在崩解。雖然不舒服，卻是重建的機會。", "害怕改變、延後崩解", "人生會經歷突然的改變，也能打破舊框架。課題是在崩解之後重新蓋起自己的塔。"],
+  ["星星", "希望、療癒", "經歷風雨之後，希望回來了。相信自己，慢慢恢復。", "失去信心、灰心", "懷抱希望和理想，能療癒身邊的人。課題是相信自己也值得被好好對待。"],
+  ["月亮", "不安、直覺與幻象", "事情還看不清楚，有些恐懼來自想像。給自己時間，等霧散開。", "看清真相、恐懼消退", "想像力豐富、感受細膩。課題是分辨哪些是直覺、哪些是恐懼。"],
+  ["太陽", "喜悅、明朗", "事情明朗、順利，適合大方展現自己，享受當下。", "短暫的低潮、過度樂觀", "樂觀、溫暖，能帶給人活力。課題是長大之後，仍然保有赤子之心。"],
+  ["審判", "覺醒、重新出發", "聽見內心的召喚，原諒過去，給自己一個重新開始的機會。", "自我批判、錯過召喚", "會在關鍵時刻醒悟、重新出發。課題是原諒過去，回應內在的召喚。"],
+  ["世界", "完成、圓滿", "一個階段圓滿完成。好好慶祝，也準備走進下一個旅程。", "差最後一步、未完成", "追求完整，視野寬廣。課題是一個階段完成後，勇敢開始下一段。"]
+];
+
+// ===== 生日牌 =====
+const digits = n => String(n).split("").reduce((a, b) => a + +b, 0);
+function birthCards(y, m, d) {
+  let n = y + m + d;
+  while (n > 22) n = digits(n);
+  const chain = [n];
+  while (chain[chain.length - 1] > 9 && chain[chain.length - 1] !== 22) chain.push(digits(chain[chain.length - 1]));
+  if (n === 22) chain.push(4); // 22 是愚者，再加一次是 4（皇帝）
+  return chain.map(x => x === 22 ? 0 : x);
+}
+
+// ===== 紫微 =====
+const STAR_TEXT = {
+  紫微: "帝星。有主見，重尊嚴，適合帶領別人。", 天機: "智慧星。思考快、愛計畫，也容易想太多。", 太陽: "貴星。熱情、願意付出，在意名聲。",
+  武曲: "財星。果斷務實，執行力強。", 天同: "福星。溫和隨緣，懂得享受。", 廉貞: "囚星。有原則和企圖心，感情濃烈。",
+  天府: "庫星。穩重保守，擅長守成和管理。", 太陰: "富星。細膩內斂，重視家庭和安全感。", 貪狼: "桃花星。慾望強、多才多藝，善交際。",
+  巨門: "暗星。口才好，愛追根究柢，也容易多疑。", 天相: "印星。協調力強，守規矩，重形象。", 天梁: "蔭星。愛照顧人，有原則，個性老成。",
+  七殺: "將星。衝勁足、獨立，敢冒險。", 破軍: "耗星。破舊立新，不安於現狀。"
+};
+
+// 時辰序號：0 子 … 11 亥。23:00 之後以隔日子時排盤
+function toIztroInput(b) {
+  let { y, mo, d } = b;
+  if (b.hh === 23) { const nx = new Date(Date.UTC(y, mo - 1, d + 1)); y = nx.getUTCFullYear(); mo = nx.getUTCMonth() + 1; d = nx.getUTCDate(); }
+  return { date: `${y}-${mo}-${d}`, idx: b.hh === 23 ? 0 : Math.floor((b.hh + 1) / 2) };
+}
+
+
+// ===== 星座 =====
+const SIGNS = [["牡羊", "火"], ["金牛", "土"], ["雙子", "風"], ["巨蟹", "水"], ["獅子", "火"], ["處女", "土"], ["天秤", "風"], ["天蠍", "水"], ["射手", "火"], ["摩羯", "土"], ["水瓶", "風"], ["雙魚", "水"]];
+const signOf = lon => SIGNS[Math.floor(norm(lon) / 30)];
+function ascOf(ms, lat, lon) {
+  const t = Astronomy.MakeTime(new Date(ms)), m = Astronomy.Rotation_EQD_ECT(t).rot;
+  const e = Math.atan2(m[2][1], m[1][1]), th = norm(Astronomy.SiderealTime(t) * 15 + lon) * D2R, ph = lat * D2R;
+  return norm(Math.atan2(Math.cos(th), -(Math.sin(th) * Math.cos(e) + Math.tan(ph) * Math.sin(e))) * R2D);
+}
+
+// ===== 共同主題 =====
+const THEMES = {
+  行動: "想到就做，喜歡開創、推動事情往前。", 穩定: "重視安全感和踏實感，按部就班把事情做好。", 思考: "愛分析、愛溝通，用頭腦理解世界。",
+  情感: "感受細膩，重視照顧人，也需要被好好照顧。", 獨立: "有主見，需要自己的空間和節奏。", 關係: "在意和諧與連結，常透過別人看見自己。",
+  直覺: "相信內在的感覺，需要安靜下來的時間。", 變化: "喜歡新鮮和自由，人生常有轉折。", 秩序: "重視責任、原則，喜歡有條理。", 表達: "想被看見，透過表達和創作發光。"
+};
+const TAG = {
+  dm: { 木: ["行動", "情感"], 火: ["表達", "行動"], 土: ["穩定", "情感"], 金: ["秩序", "獨立"], 水: ["思考", "直覺"] },
+  strength: { 偏強: ["獨立"], 偏弱: ["關係"], 中和: ["關係"] },
+  ziwei: { 紫微: ["秩序", "獨立"], 天機: ["思考", "變化"], 太陽: ["表達", "情感"], 武曲: ["行動", "穩定"], 天同: ["關係", "情感"], 廉貞: ["獨立", "情感"],
+    天府: ["穩定", "秩序"], 太陰: ["情感", "直覺"], 貪狼: ["變化", "關係"], 巨門: ["思考"], 天相: ["關係", "秩序"], 天梁: ["情感", "秩序"], 七殺: ["行動", "獨立"], 破軍: ["變化", "行動"] },
+  el: { 火: ["行動", "表達"], 土: ["穩定"], 風: ["思考", "關係"], 水: ["情感", "直覺"] },
+  type: { 生產者: ["穩定"], 顯示生產者: ["行動", "變化"], 投射者: ["思考", "關係"], 顯示者: ["行動", "獨立"], 反映者: ["直覺", "關係"] },
+  auth: { 情緒權威: ["情感"], 薦骨權威: ["直覺"], 直覺權威: ["直覺"], 意志力權威: ["獨立"], 自我投射權威: ["表達"], 環境權威: ["關係"], 月亮權威: ["直覺"] },
+  tarot: [["變化"], ["行動", "表達"], ["直覺"], ["情感", "表達"], ["秩序"], ["秩序", "思考"], ["關係"], ["行動"], ["情感", "穩定"], ["直覺", "獨立"], ["變化"],
+    ["秩序"], ["直覺"], ["變化"], ["關係"], ["情感"], ["變化"], ["情感", "直覺"], ["直覺"], ["表達"], ["變化"], ["關係"]]
+};
+const SYS = { 八字: "--s-bazi", 紫微: "--s-ziwei", 星座: "--s-star", 人類圖: "--s-hd", 塔羅: "--s-tarot" };
+
+// ===== 計算 =====
+function overview(b) {
+  const T = []; // { sys, from, tags }
+  const out = {};
+  const noonOrBirth = localToUtc(b.y, b.mo, b.d, b.noTime ? 12 : b.hh, b.noTime ? 0 : b.mm, b.zone);
+  // 八字
+  const bz = bazi(b.y, b.mo, b.d, b.noTime ? null : b.hh, noonOrBirth), an = analyze(bz), kg = kua(bz.solarYear, b.sex);
+  out.bazi = { bz, an, kg };
+  T.push({ sys: "八字", from: `日主${STEMS[bz.day[0]]}${an.dm}`, tags: TAG.dm[an.dm] }, { sys: "八字", from: `底色${an.strength}`, tags: TAG.strength[an.strength] });
+  // 紫微（需要時辰）
+  if (!b.noTime && typeof iztro !== "undefined") {
+    const { date, idx } = toIztroInput(b);
+    const a = iztro.astro.bySolar(date, idx, b.sex, true, "zh-TW");
+    const i = a.palaces.findIndex(p => p.name === "命宮"), ming = a.palaces[i];
+    let mains = ming.majorStars.map(s => s.name), borrowed = false;
+    if (!mains.length) { mains = a.palaces[(i + 6) % 12].majorStars.map(s => s.name); borrowed = true; }
+    const body = a.palaces.find(p => p.isBodyPalace);
+    out.ziwei = { mains, borrowed, branch: ming.earthlyBranch, body: body.name, cls: a.fiveElementsClass };
+    mains.forEach(m => T.push({ sys: "紫微", from: `命宮${m}`, tags: TAG.ziwei[m] || [] }));
+  }
+  // 星座
+  const pos = positions(noonOrBirth);
+  const sun = signOf(pos.Sun);
+  let moon = signOf(pos.Moon), moonAlt = null, asc = null;
+  if (b.noTime) {
+    const m0 = signOf(positions(localToUtc(b.y, b.mo, b.d, 0, 0, b.zone)).Moon), m1 = signOf(positions(localToUtc(b.y, b.mo, b.d, 23, 59, b.zone)).Moon);
+    if (m0 !== m1) moonAlt = [m0, m1];
+  } else asc = signOf(ascOf(noonOrBirth, b.lat, b.lon));
+  out.star = { sun, moon, moonAlt, asc };
+  T.push({ sys: "星座", from: `太陽${sun[0]}`, tags: TAG.el[sun[1]] });
+  if (!moonAlt) T.push({ sys: "星座", from: `月亮${moon[0]}`, tags: TAG.el[moon[1]] });
+  if (asc) T.push({ sys: "星座", from: `上升${asc[0]}`, tags: TAG.el[asc[1]] });
+  // 人類圖
+  let R = hd(noonOrBirth), range = null;
+  if (b.noTime) {
+    range = { type: new Set(), auth: new Set(), profile: new Set() };
+    for (let h = 0; h < 24; h++) { const x = hd(localToUtc(b.y, b.mo, b.d, h, 30, b.zone)); range.type.add(x.type); range.auth.add(x.auth); range.profile.add(x.profile.join("/")); }
+  }
+  out.hd = { R, range };
+  if (!range || range.type.size === 1) T.push({ sys: "人類圖", from: R.type, tags: TAG.type[R.type] });
+  if (!range || range.auth.size === 1) T.push({ sys: "人類圖", from: R.auth, tags: TAG.auth[R.auth] });
+  // 塔羅
+  const chain = birthCards(b.y, b.mo, b.d);
+  out.tarot = chain;
+  [...new Set([chain[0], chain[chain.length - 1]])].forEach(n => T.push({ sys: "塔羅", from: MAJOR[n][0], tags: TAG.tarot[n] }));
+  // 共同主題：先看出現在幾個系統，再看出現幾次
+  const score = {};
+  T.forEach(t => t.tags.forEach(g => { const s = score[g] = score[g] || { sys: new Set(), from: [] }; s.sys.add(t.sys); s.from.push([t.sys, t.from]); }));
+  const sorted = Object.entries(score).sort((x, y) => y[1].sys.size - x[1].sys.size || y[1].from.length - x[1].from.length);
+  const shared = sorted.filter(([, s]) => s.sys.size >= 2).slice(0, 3);
+  const ranked = shared.length ? shared : sorted.slice(0, 1); // 至少兩個系統都提到的主題；都沒有時只列最常出現的一個
+  return { out, ranked };
+}
+
+// ===== 畫面 =====
+function render(b, res, sample) {
+  const { out, ranked } = res, { bz, an, kg } = out.bazi, { R, range } = out.hd, st = out.star;
+  const pill = p => p ? `${STEMS[p[0]]}${BRANCHES[p[1]]}` : "？？";
+  const card = (sys, title, lines, href, more, tags) => `<article class="sys" style="--c:var(${SYS[sys]})"><span class="name">${sys}</span><b>${title}</b>${lines.map(l => `<p>${l}</p>`).join("")}
+    ${tags ? `<div class="tags">${tags.map(t => `<span>${t}</span>`).join("")}</div>` : ""}<a class="more" href="${href}">${more}</a></article>`;
+  const tagsOf = sys => [...new Set(ranked.flatMap(([g, s]) => s.from.some(f => f[0] === sys) ? [g] : []))];
+  const z = out.ziwei;
+  const zCard = z ? card("紫微", `命宮${z.mains.join("、")}`, [`${z.borrowed ? "命宮沒有主星，借對宮來看。" : ""}${z.mains.map(m => STAR_TEXT[m] || "").join("")}`, `身宮在${z.body}・${z.cls}`], "ziwei-mingpan.html", "看紫微命盤", tagsOf("紫微"))
+    : `<article class="sys na" style="--c:var(--s-ziwei)"><span class="name">紫微</span><b>需要出生時間</b><p>紫微斗數一定要有出生時辰才排得出命宮。</p><a class="more" href="ziwei-mingpan.html">看紫微命盤</a></article>`;
+  const typeAlt = range && range.type.size > 1 ? `（可能是${[...range.type].join("或")}）` : "";
+  const authAlt = range && range.auth.size > 1 ? `（可能是${[...range.auth].join("或")}）` : "";
+  const profAlt = range && range.profile.size > 1 ? `（可能是${[...range.profile].join("、")}）` : "";
+  const chain = out.tarot;
+  $("out").innerHTML = `
+    <section class="panel" aria-labelledby="th-h">
+      <div class="sec-h"><h2 id="th-h">${b.name ? esc(b.name) + "，" : ""}好幾個系統都說你</h2></div>
+      <div class="themes" style="grid-template-columns:repeat(${ranked.length}, minmax(0, 1fr))">${ranked.map(([g, s], i) => `<div class="theme"><span class="rank">第 ${i + 1} 個主題 · ${s.sys.size} 個系統</span><b>${g}</b><p>${THEMES[g]}</p>
+        <div class="chips">${s.from.map(([sys, f]) => `<span class="chip" style="--c:var(${SYS[sys]})">${sys}・${f}</span>`).join("")}</div></div>`).join("")}</div>
+      <p class="lede">當不同的系統，用不同的語言說到同一件事，那多半就是你很核心的樣子。也看看下面每個系統各自補充了什麼。</p>
+      ${b.noTime ? `<p class="note">沒有出生時間：不看紫微和上升星座${st.moonAlt ? "，月亮星座有兩種可能也先不算" : ""}；人類圖只採用一整天都一樣的結果。</p>` : ""}
+    </section>
+    <section aria-labelledby="sys-h" style="display:grid;gap:14px">
+      <h2 id="sys-h" style="font-size:22px">五個系統的重點</h2>
+      <div class="systems">
+        ${card("八字", `${STEMS[bz.day[0]]}${an.dm}日主，底色${an.strength}`, [`四柱：${pill(bz.year)}・${pill(bz.month)}・${pill(bz.day)}・${pill(bz.hour)}`, `五行：${ELS.map(e => `${e}${an.cnt[e]}`).join("　")}`, `八宅命卦：${kg.name}卦，${kg.group}`], "wuxing-wengua.html", "用生辰問一件事", tagsOf("八字"))}
+        ${zCard}
+        ${card("星座", `太陽${st.sun[0]}・月亮${st.moonAlt ? st.moonAlt.map(s => s[0]).join("或") : st.moon[0]}`, [st.asc ? `上升${st.asc[0]}` : "上升星座需要出生時間", `太陽是你做自己的方式，月亮是你需要的安全感，上升是別人第一眼看到的你。`], "xingzuo-mingpan.html", "看星座命盤", tagsOf("星座"))}
+        ${card("人類圖", `${R.type}${typeAlt}`, [`策略：${TYPES[R.type][0]}`, `權威：${R.auth}${authAlt}`, `人生角色：${R.profile.join("/")}${profAlt}・${LINES[R.profile[0]][0]}／${LINES[R.profile[1]][0]}`], "renleitu.html", "看人類圖", tagsOf("人類圖"))}
+        ${card("塔羅", chain.map(n => `${ROMAN[n]} ${MAJOR[n][0]}`).join("・"), [chain.length === 1 ? "人格牌和靈魂牌是同一張。" : `人格牌${MAJOR[chain[0]][0]}，靈魂牌${MAJOR[chain[chain.length - 1]][0]}。`, MAJOR[chain[0]][4]], "taluo.html#birth", "看塔羅生日牌", tagsOf("塔羅"))}
+      </div>
+    </section>`;
+}
+
+// ===== 輸入 =====
+function fillTimeSelect(sel, n, unit) {
+  sel.innerHTML = `<option value="">--${unit}</option>` + Array.from({ length: n }, (_, i) => `<option value="${pad2(i)}">${pad2(i)}</option>`).join("");
+}
+fillTimeSelect($("btH"), 24, "時"); fillTimeSelect($("btM"), 60, "分");
+$("city").innerHTML = CITIES.map(([g, list]) => `<optgroup label="${g}">${list.map(c => `<option value="${c[0]}">${c[0]}</option>`).join("")}</optgroup>`).join("");
+function setTime(t) { const [h = "", m = ""] = (t || "").split(":"); $("btH").value = h; $("btM").value = m; }
+function syncTime() { $("btH").disabled = $("btM").disabled = $("noTime").checked; }
+function readBirth() {
+  const d = $("bd").value, h = $("btH").value, m = $("btM").value, noTime = $("noTime").checked, city = $("city").value;
+  if (!d) return { err: "請先填出生日期。" };
+  const [y, mo, dd] = d.split("-").map(Number);
+  if (y < 1901 || y > 2099) return { err: "目前支援 1901 到 2099 年出生。" };
+  if (!noTime && (!h || !m)) return { err: "請選出生的時和分，或勾選「不知道出生時間」。" };
+  const [, lat, lon, zone] = CITY_BY[city], sex = $("sexM").checked ? "男" : "女", name = $("nm").value.trim();
+  return { y, mo, d: dd, hh: +h, mm: +m, noTime, lat, lon, zone, sex, name, raw: { d, t: noTime ? "" : `${h}:${m}`, noTime, city, sex, name } };
+}
+let isSample = true;
+function calc(b) {
+  let res;
+  try { res = overview(b); } catch (e) { $("err").textContent = "這組資料排不出來，請檢查日期和時間。"; return; }
+  $("err").textContent = "";
+  $("sampleTag").hidden = !isSample;
+  render(b, res, isSample);
+}
+$("calcBtn").addEventListener("click", () => {
+  const b = readBirth();
+  if (b.err) { $("err").textContent = b.err; return; }
+  isSample = false; calc(b);
+  if ($("remember").checked) store("zl-birth", b.raw);
+});
+$("remember").addEventListener("change", () => {
+  if (!$("remember").checked) store("zl-birth", undefined);
+  else if (!isSample) { const b = readBirth(); if (!b.err) store("zl-birth", b.raw); }
+});
+$("noTime").addEventListener("change", syncTime);
+
+// ===== 啟動 =====
+const SAMPLE = { d: "1990-05-17", t: "14:30", noTime: false, city: "台北", sex: "女", name: "" };
+const saved = load("zl-birth", null), start = saved || SAMPLE;
+isSample = !saved;
+$("bd").value = start.d; setTime(start.t); $("noTime").checked = !!start.noTime; $("nm").value = start.name || "";
+$("city").value = CITY_BY[start.city] ? start.city : "台北";
+$(start.sex === "男" ? "sexM" : "sexF").checked = true;
+$("remember").checked = !!saved;
+syncTime();
+if (typeof Astronomy === "undefined") $("err").textContent = "計算程式沒有載入成功，請確認網路連線後重新整理頁面。";
+else { const b = readBirth(); if (!b.err) calc(b); }
+</script>
+<script>
+// 頁首線束：首頁主視覺的靜止淡色版
+(() => {
+  const cv = document.querySelector(".threads-bg"); if (!cv) return;
+  const ctx = cv.getContext("2d"), COLORS = ["#E8577E", "#F6DD6A", "#3FA4E0"];
+  let seed = 20261029; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const lines = Array.from({ length: 56 }, (_, i) => ({ c: COLORS[i % 3], w: .6 + rnd() * 1.1, a: .22 + rnd() * .28, off: rnd() - .5,
+    spread: .5 + rnd() * .9, f1: 1.2 + rnd() * 2.2, f2: 3 + rnd() * 4, p1: rnd() * 6.28, p2: rnd() * 6.28, amp: (rnd() < .12 ? .7 : .12) + rnd() * .45 }));
+  function draw() {
+    const W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const rise = Math.min(.6, .6 * (W / H) / 3);
+    const center = u => H * (.58 - rise * u), band = u => H * (.05 + .2 * Math.pow(u, 1.3));
+    const steps = Math.max(60, Math.round(W / 10));
+    const path = L => { ctx.beginPath(); for (let s = 0; s <= steps; s++) { const u = s / steps, x = -40 + (W + 80) * u;
+      const wob = L.amp * (Math.sin(u * L.f1 * 3.14 + L.p1) * .6 + Math.sin(u * L.f2 * 3.14 + L.p2) * .4);
+      const y = center(u) + band(u) * (L.off * L.spread + wob * (.35 + u * .65)); s ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } };
+    ctx.clearRect(0, 0, W, H); ctx.lineCap = "round";
+    for (const L of lines) { ctx.strokeStyle = L.c; ctx.globalAlpha = L.a; ctx.lineWidth = L.w; path(L); ctx.stroke(); }
+    ctx.globalAlpha = .55; ctx.strokeStyle = "#1E2A3A"; ctx.lineWidth = 2; path({ off: 0, spread: 0, amp: .18, f1: 1.4, f2: 3.2, p1: 1, p2: 2 }); ctx.stroke();
+  }
+  draw(); addEventListener("resize", draw);
+})();
+</script>
